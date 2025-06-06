@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Séance Musculation - Enhanced</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    h2 {
+      text-align: center;
+      color: #4a5568;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .controls label {
+      font-weight: 600;
+      color: #4a5568;
+    }
+    
+    select, input[type="number"], input[type="text"] {
+      padding: 0.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      background: white;
+      margin-bottom: 2rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+    
+    th, td {
+      padding: 1rem 0.5rem;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.3s ease;
+    }
+    
+    th {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .exercise-row {
+      transition: all 0.3s ease;
+    }
+    
+    .exercise-row:hover {
+      background: rgba(102, 126, 234, 0.05);
+      transform: translateY(-1px);
+    }
+    
+    .exercise-row:nth-child(even) {
+      background: rgba(248, 250, 252, 0.8);
+    }
+    
+    .fixed-col {
+      text-align: left;
+      font-weight: 600;
+      color: #4a5568;
+      position: sticky;
+      left: 0;
+      background: inherit;
+      min-width: 200px;
+      padding-left: 1rem;
+    }
+    
+    .serie-input {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      align-items: center;
+    }
+    
+    .serie-input input {
+      width: 60px;
+      padding: 0.4rem;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .serie-input input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .serie-input input.completed {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      border-color: #38a169;
+    }
+    
+    .stats-cell {
+      font-weight: 600;
+      color: #4a5568;
+    }
+    
+    .tonnage-high {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      border-radius: 6px;
+      padding: 0.5rem;
+    }
+    
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .timer-btn {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .timer-btn.start {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+    
+    .timer-btn.stop {
+      background: linear-gradient(135deg, #f56565, #e53e3e);
+      color: white;
+    }
+    
+    .timer-btn.reset {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+    
+    .timer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .timer-display {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #4a5568;
+      min-width: 60px;
+    }
+    
+    .timer-active {
+      color: #48bb78;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .summary-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .summary-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .summary-card h3 {
+      margin: 0 0 0.5rem 0;
+      color: #4a5568;
+      font-size: 1.1rem;
+    }
+    
+    .summary-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+    
+    .summary-card .unit {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      min-width: 150px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #f56565, #e53e3e);
+      color: white;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .custom-exercise {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+    }
+    
+    .notification.error {
+      background: linear-gradient(135deg, #f56565, #e53e3e);
+    }
+    
+    .notification.info {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+        margin: 0.5rem;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .serie-input input {
+        width: 50px;
+        padding: 0.3rem;
+        font-size: 0.8rem;
+      }
+      
+      th, td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+      }
+      
+      .fixed-col {
+        min-width: 150px;
+        font-size: 0.8rem;
+      }
+      
+      .timer-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+      }
+      
+      .btn {
+        min-width: 120px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .summary-section {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      table {
+        min-width: 600px;
+      }
+      
+      .serie-input input {
+        width: 45px;
+      }
+      
+      .fixed-col {
+        min-width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <h2>💪 Suivi Séance Musculation</h2>
+    
+    <div class="controls">
+      <label for="sessionSelect"><strong>🏋️ Choisir une séance :</strong></label>
+      <select id="sessionSelect" onchange="selectSession()">
+        <option value="0">PUSH (Poitrine/Épaules/Triceps)</option>
+        <option value="1">PULL (Dos/Biceps)</option>
+        <option value="2">LEG (Jambes)</option>
+        <option value="3">Épaules/Bras</option>
+        <option value="4">Dos/Pec</option>
+      </select>
+      
+      <div class="custom-exercise">
+        <input type="text" id="customExercise" placeholder="Nom de l'exercice">
+        <input type="text" id="customRest" placeholder="Repos (ex: 2 min)" value="1 min">
+        <button class="btn btn-success" onclick="addCustomExercise()">+ Ajouter</button>
+      </div>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    
+    <div class="table-container">
+      <table id="workoutTable">
+        <thead>
+          <tr>
+            <th>Exercice</th>
+            <th colspan="5">Séries (Reps / Poids kg)</th>
+            <th>Tonnage</th>
+            <th>Total Reps</th>
+            <th>Moy. kg/rep</th>
+            <th>Repos</th>
+            <th>Minuteur</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    
+    <div class="summary-section">
+      <div class="summary-card">
+        <h3>🏋️ Tonnage Total</h3>
+        <div class="value" id="totalTonnage">0</div>
+        <div class="unit">kg</div>
+      </div>
+      
+      <div class="summary-card">
+        <h3>📊 Semaine Précédente</h3>
+        <input type="number" id="previousWeek" onchange="saveData()" style="font-size: 1.5rem; text-align: center; border: none; background: transparent; font-weight: bold; color: #667eea; width: 100px;">
+        <div class="unit">kg</div>
+      </div>
+      
+      <div class="summary-card">
+        <h3>📈 Progression</h3>
+        <div class="value" id="delta">0</div>
+        <div class="unit">kg</div>
+      </div>
+      
+      <div class="summary-card">
+        <h3>⏱️ Temps Total</h3>
+        <div class="value" id="totalTime">0</div>
+        <div class="unit">min</div>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-danger" onclick="resetData()">🗑️ Effacer la séance</button>
+      <button class="btn btn-secondary" onclick="exportCSV()">📊 Exporter CSV</button>
+      <button class="btn btn-primary" onclick="exportJSON()">💾 Exporter JSON</button>
+      <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📥 Importer</button>
+      <input type="file" id="importFile" accept=".json,.csv" style="display: none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <script>
+    let sessions = [
+      [ // PUSH
+        { name: "DC barre lourd", rest: "2 min" },
+        { name: "DC barre léger", rest: "2 min" },
+        { name: "Incliné haltères", rest: "1 min" },
+        { name: "Écarté vis à vis", rest: "1 min" },
+        { name: "Dips machine", rest: "1 min" },
+        { name: "Élévation latérale machine debout", rest: "1 min" },
+        { name: "Extension triceps poulie", rest: "1 min" }
+      ],
+      [ // PULL
+        { name: "Traction", rest: "2 min" },
+        { name: "Pull poulie", rest: "1 min" },
+        { name: "Tirage uni poulie haute sur banc", rest: "1 min" },
+        { name: "Rowing T bar", rest: "1 min" },
+        { name: "Machine Row", rest: "1 min" },
+        { name: "Machine Row uni", rest: "1 min" },
+        { name: "Face pull", rest: "1 min" },
+        { name: "Oiseaux machine", rest: "1 min" },
+        { name: "Curl marteau simultané", rest: "30s" },
+        { name: "Bayesian curl", rest: "30s" }
+      ],
+      [ // LEG
+        { name: "Leg extension drop", rest: "1 min" },
+        { name: "Presse horizontal", rest: "2 min" },
+        { name: "Squat guidé léger", rest: "1 min" },
+        { name: "Fente marché", rest: "2 min" },
+        { name: "Leg Curl assis", rest: "1 min" },
+        { name: "SDT jambes tendues smith", rest: "1 min" }
+      ],
+      [ // Épaules/Bras
+        { name: "Militaire haltères pyramide montante", rest: "3 min" },
+        { name: "Élévation latérale", rest: "1 min" },
+        { name: "Élévation latérale supination", rest: "1 min" },
+        { name: "Face pull", rest: "1 min" },
+        { name: "Extension triceps", rest: "1 min" },
+        { name: "Curl poulie basse", rest: "0" },
+        { name: "Magic triceps", rest: "0" },
+        { name: "Curl pupitre", rest: "0" },
+        { name: "Dips", rest: "0" },
+        { name: "Curl haltères incliné", rest: "0" },
+        { name: "Cross Cable Triceps", rest: "0" },
+        { name: "Curl concentré haltère", rest: "0" }
+      ],
+      [ // Dos/Pec
+        { name: "Tirage horizontal", rest: "1 min" },
+        { name: "Rowing barre buste penché pronation", rest: "1 min" },
+        { name: "Tirage poulie basse avec corde", rest: "1 min" },
+        { name: "Incliné guidé", rest: "2 min" },
+        { name: "Écarté couché", rest: "1 min" },
+        { name: "Vis à vis sur banc incliné", rest: "1 min" },
+        { name: "Circuit abdos", rest: "1 min" }
+      ]
+    ];
+
+    let currentSessionIndex = 0;
+    let timers = {};
+    let workoutStartTime = null;
+    let totalWorkoutTime = 0;
+
+    function selectSession() {
+      currentSessionIndex = parseInt(document.getElementById("sessionSelect").value);
+      resetData();
+    }
+
+    function addCustomExercise() {
+      const exerciseName = document.getElementById("customExercise").value.trim();
+      const restTime = document.getElementById("customRest").value.trim();
+      
+      if (!exerciseName) {
+        showNotification("Veuillez entrer un nom d'exercice", "error");
+        return;
+      }
+      
+      sessions[currentSessionIndex].push({
+        name: exerciseName,
+        rest: restTime || "1 min"
+      });
+      
+      document.getElementById("customExercise").value = "";
+      document.getElementById("customRest").value = "1 min";
+      
+      createTable();
+      showNotification("Exercice ajouté avec succès!", "success");
+    }
+
+    function createTable() {
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+      const exercises = sessions[currentSessionIndex];
+      
+      exercises.forEach((ex, idx) => {
+        const tr = document.createElement("tr");
+        tr.classList.add("exercise-row");
+        
+        let seriesHtml = "";
+        for(let i = 0; i < 5; i++) {
+          seriesHtml += `
+            <td>
+              <div class="serie-input">
+                <input type="number" min="0" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" onchange="updateTotals()">
+                <input type="number" min="0" step="0.5" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" onchange="updateTotals()">
+              </div>
+            </td>`;
+        }
+        
+        tr.innerHTML = `
+          <td class="fixed-col">${ex.name}</td>
+          ${seriesHtml}
+          <td class="stats-cell" id="tonnage-${idx}">0</td>
+          <td class="stats-cell" id="totalReps-${idx}">0</td>
+          <td class="stats-cell" id="avg-${idx}">0</td>
+          <td><strong>${ex.rest}</strong></td>
+          <td>
+            <div class="timer-container">
+              <div class="timer-display" id="timer-${idx}">0:00</div>
+              <button class="timer-btn start" onclick="startTimer(${idx})">Start</button>
+              <button class="timer-btn stop" onclick="stopTimer(${idx})" style="display: none;">Stop</button>
+              <button class="timer-btn reset" onclick="resetTimer(${idx})">Reset</button>
+            </div>
+          </td>
+          <td>
+            <button class="timer-btn" onclick="removeExercise(${idx})" style="background: #f56565;">🗑️</button>
+          </td>`;
+        
+        tbody.appendChild(tr);
+      });
+      
+      loadData();
+      updateProgress();
+    }
+
+    function removeExercise(idx) {
+      if (sessions[currentSessionIndex].length <= 1) {
+        showNotification("Impossible de supprimer le dernier exercice", "error");
+        return;
+      }
+      
+      sessions[currentSessionIndex].splice(idx, 1);
+      createTable();
+      showNotification("Exercice supprimé", "info");
+    }
+
+    function updateTotals() {
+      let totalTonnage = 0;
+      let completedSeries = 0;
+      let totalSeries = 0;
+      const exercises = sessions[currentSessionIndex];
+      
+      exercises.forEach((_, idx) => {
+        let tonnage = 0;
+        let totalReps = 0;
+        let exerciseCompleted = 0;
+        
+        for(let i = 0; i < 5; i++) {
+          const repsInput = document.querySelector(`.reps[data-ex='${idx}'][data-serie='${i}']`);
+          const weightInput = document.querySelector(`.weight[data-ex='${idx}'][data-serie='${i}']`);
+          
+          const reps = +repsInput?.value || 0;
+          const weight = +weightInput?.value || 0;
+          
+          if (reps > 0 && weight > 0) {
+            tonnage += reps * weight;
+            totalReps += reps;
+            exerciseCompleted++;
+            repsInput.classList.add('completed');
+            weightInput.classList.add('completed');
+          } else {
+            repsInput?.classList.remove('completed');
+            weightInput?.classList.remove('completed');
+          }
+          
+          totalSeries++;
+        }
+        
+        completedSeries += exerciseCompleted;
+        
+        const tonnageEl = document.getElementById(`tonnage-${idx}`);
+        const totalRepsEl = document.getElementById(`totalReps-${idx}`);
+        const avgEl = document.getElementById(`avg-${idx}`);
+        
+        tonnageEl.textContent = tonnage;
+        totalRepsEl.textContent = totalReps;
+        avgEl.textContent = totalReps ? (tonnage / totalReps).toFixed(2) : 0;
+        
+        if (tonnage > 0) {
+          tonnageEl.classList.add('tonnage-high');
+        } else {
+          tonnageEl.classList.remove('tonnage-high');
+        }
+        
+        totalTonnage += tonnage;
+      });
+      
+      document.getElementById("totalTonnage").textContent = totalTonnage;
+      
+      const previous = +document.getElementById("previousWeek").value || 0;
+      const delta = totalTonnage - previous;
+      const deltaEl = document.getElementById("delta");
+      deltaEl.textContent = delta > 0 ? `+${delta}` : delta;
+      deltaEl.style.color = delta > 0 ? '#48bb78' : delta < 0 ? '#f56565' : '#4a5568';
+      
+      updateProgress();
+      saveData();
+    }
+
+    function updateProgress() {
+      let completedSeries = 0;
+      let totalSeries = 0;
+      const exercises = sessions[currentSessionIndex];
+      
+      exercises.forEach((_, idx) => {
+        for(let i = 0; i < 5; i++) {
+          const reps = +document.querySelector(`.reps[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          const weight = +document.querySelector(`.weight[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          
+          if (reps > 0 && weight > 0) {
+            completedSeries++;
+          }
+          totalSeries++;
+        }
+      });
+      
+      const progress = totalSeries > 0 ? (completedSeries / totalSeries) * 100 : 0;
+      document.getElementById("progressFill").style.width = `${progress}%`;
+    }
+
+    function startTimer(idx) {
+      if (timers[idx]) {
+        clearInterval(timers[idx].interval);
+      }
+      
+      if (!workoutStartTime) {
+        workoutStartTime = Date.now();
+        updateTotalTime();
+      }
+      
+      timers[idx] = {
+        startTime: Date.now(),
+        seconds: 0,
+        interval: setInterval(() => {
+          timers[idx].seconds++;
+          updateTimerDisplay(idx);
+        }, 1000)
+      };
+      
+      const startBtn = document.querySelector(`button[onclick="startTimer(${idx})"]`);
+      const stopBtn = document.querySelector(`button[onclick="stopTimer(${idx})"]`);
+      
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+      
+      document.getElementById(`timer-${idx}`).classList.add('timer-active');
+    }
+
+    function stopTimer(idx) {
+      if (timers[idx]) {
+        clearInterval(timers[idx].interval);
+        delete timers[idx];
+      }
+      
+      const startBtn = document.querySelector(`button[onclick="startTimer(${idx})"]`);
+      const stopBtn = document.querySelector(`button[onclick="stopTimer(${idx})"]`);
+      
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+      
+      document.getElementById(`timer-${idx}`).classList.remove('timer-active');
+    }
+
+    function resetTimer(idx) {
+      stopTimer(idx);
+      if (timers[idx]) {
+        timers[idx].seconds = 0;
+      }
+      document.getElementById(`timer-${idx}`).textContent = '0:00';
+    }
+
+    function updateTimerDisplay(idx) {
+      if (timers[idx]) {
+        const minutes = Math.floor(timers[idx].seconds / 60);
+        const seconds = timers[idx].seconds % 60;
+        document.getElementById(`timer-${idx}`).textContent = 
+          `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+
+    function updateTotalTime() {
+      if (workoutStartTime) {
+        const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000 / 60);
+        document.getElementById("totalTime").textContent = elapsed;
+        setTimeout(updateTotalTime, 60000); // Update every minute
+      }
+    }
+
+    function saveData() {
+      const data = {
+        reps: [...document.querySelectorAll(".reps")].map(i => i.value),
+        weight: [...document.querySelectorAll(".weight")].map(i => i.value),
+        previousWeek: document.getElementById("previousWeek").value,
+        sessionIndex: currentSessionIndex,
+        customSessions: sessions,
+        workoutStartTime: workoutStartTime
+      };
+      
+      // Using in-memory storage simulation instead of localStorage
+      window.workoutData = data;
+    }
+
+    function loadData() {
+      const data = window.workoutData || {};
+      
+      if (data.reps && data.sessionIndex === currentSessionIndex) {
+        [...document.querySelectorAll(".reps")].forEach((i, idx) => {
+          if (data.reps[idx]) i.value = data.reps[idx];
+        });
+        [...document.querySelectorAll(".weight")].forEach((i, idx) => {
+          if (data.weight[idx]) i.value = data.weight[idx];
+        });
+        document.getElementById("previousWeek").value = data.previousWeek || "";
+      }
+      
+      if (data.customSessions) {
+        sessions = data.customSessions;
+      }
+      
+      if (data.workoutStartTime) {
+        workoutStartTime = data.workoutStartTime;
+        updateTotalTime();
+      }
+      
+      updateTotals();
+    }
+
+    function resetData() {
+      // Stop all timers
+      Object.keys(timers).forEach(idx => stopTimer(parseInt(idx)));
+      timers = {};
+      workoutStartTime = null;
+      
+      // Clear in-memory data
+      window.workoutData = null;
+      
+      createTable();
+      showNotification("Séance réinitialisée", "info");
+    }
+
+    function exportCSV() {
+      let csv = "Exercice,Serie,Reps,Poids,Tonnage\n";
+      const exercises = sessions[currentSessionIndex];
+      let totalTonnage = 0;
+      
+      exercises.forEach((ex, idx) => {
+        for(let i = 0; i < 5; i++) {
+          const reps = +document.querySelector(`.reps[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          const weight = +document.querySelector(`.weight[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          const tonnage = reps * weight;
+          totalTonnage += tonnage;
+          csv += `"${ex.name}",${i+1},${reps},${weight},${tonnage}\n`;
+        }
+      });
+      
+      csv += `\nTonnage Total,,,,${totalTonnage}\n`;
+      csv += `Date,,,,${new Date().toLocaleDateString('fr-FR')}\n`;
+      csv += `Session,,,,${document.getElementById('sessionSelect').selectedOptions[0].text}\n`;
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `seance_${currentSessionIndex + 1}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showNotification("Export CSV réussi!", "success");
+    }
+
+    function exportJSON() {
+      const exercises = sessions[currentSessionIndex];
+      const workoutData = {
+        date: new Date().toISOString(),
+        sessionName: document.getElementById('sessionSelect').selectedOptions[0].text,
+        sessionIndex: currentSessionIndex,
+        exercises: exercises.map((ex, idx) => {
+          const series = [];
+          for(let i = 0; i < 5; i++) {
+            const reps = +document.querySelector(`.reps[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+            const weight = +document.querySelector(`.weight[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+            if (reps > 0 || weight > 0) {
+              series.push({ reps, weight, tonnage: reps * weight });
+            }
+          }
+          return {
+            name: ex.name,
+            rest: ex.rest,
+            series: series,
+            totalTonnage: series.reduce((sum, s) => sum + s.tonnage, 0),
+            totalReps: series.reduce((sum, s) => sum + s.reps, 0)
+          };
+        }),
+        totalTonnage: +document.getElementById("totalTonnage").textContent,
+        previousWeek: +document.getElementById("previousWeek").value || 0,
+        progression: +document.getElementById("delta").textContent,
+        workoutDuration: workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000 / 60) : 0
+      };
+      
+      const blob = new Blob([JSON.stringify(workoutData, null, 2)], { type: 'application/json' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `workout_${currentSessionIndex + 1}_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showNotification("Export JSON réussi!", "success");
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(e.target.result);
+            
+            // Switch to the correct session
+            if (data.sessionIndex !== undefined) {
+              currentSessionIndex = data.sessionIndex;
+              document.getElementById('sessionSelect').value = currentSessionIndex;
+            }
+            
+            createTable();
+            
+            // Import the data
+            if (data.exercises) {
+              data.exercises.forEach((ex, idx) => {
+                ex.series.forEach((serie, serieIdx) => {
+                  if (serieIdx < 5) {
+                    const repsInput = document.querySelector(`.reps[data-ex='${idx}'][data-serie='${serieIdx}']`);
+                    const weightInput = document.querySelector(`.weight[data-ex='${idx}'][data-serie='${serieIdx}']`);
+                    if (repsInput) repsInput.value = serie.reps;
+                    if (weightInput) weightInput.value = serie.weight;
+                  }
+                });
+              });
+            }
+            
+            if (data.previousWeek) {
+              document.getElementById("previousWeek").value = data.previousWeek;
+            }
+            
+            updateTotals();
+            showNotification("Import JSON réussi!", "success");
+            
+          } else if (file.name.endsWith('.csv')) {
+            // Simple CSV import
+            const lines = e.target.result.split('\n');
+            let currentExercise = -1;
+            let currentSerie = 0;
+            
+            createTable();
+            
+            lines.forEach(line => {
+              const [exerciseName, serie, reps, weight] = line.split(',');
+              if (exerciseName && exerciseName !== 'Exercice' && exerciseName !== 'Tonnage Total') {
+                const exIndex = sessions[currentSessionIndex].findIndex(ex => ex.name === exerciseName.replace(/"/g, ''));
+                if (exIndex >= 0 && parseInt(serie) <= 5) {
+                  const repsInput = document.querySelector(`.reps[data-ex='${exIndex}'][data-serie='${parseInt(serie) - 1}']`);
+                  const weightInput = document.querySelector(`.weight[data-ex='${exIndex}'][data-serie='${parseInt(serie) - 1}']`);
+                  if (repsInput) repsInput.value = reps;
+                  if (weightInput) weightInput.value = weight;
+                }
+              }
+            });
+            
+            updateTotals();
+            showNotification("Import CSV réussi!", "success");
+          }
+        } catch (error) {
+          showNotification("Erreur lors de l'import: " + error.message, "error");
+        }
+      };
+      reader.readAsText(file);
+      
+      // Reset file input
+      event.target.value = '';
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => notification.classList.add('show'), 100);
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notification), 300);
+      }, 3000);
+    }
+
+    // Initialize the app
+    createTable();
+    
+    // Auto-save every 30 seconds
+    setInterval(saveData, 30000);
+    
+    // Update totals periodically
+    setInterval(updateTotals, 1000);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 's':
+            e.preventDefault();
+            saveData();
+            showNotification("Données sauvegardées", "success");
+            break;
+          case 'e':
+            e.preventDefault();
+            exportJSON();
+            break;
+          case 'r':
+            e.preventDefault();
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser la séance?')) {
+              resetData();
+            }
+            break;
+        }
+      }
+    });
+
+    // Add drag and drop for import
+    document.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      document.body.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))';
+    });
+    
+    document.addEventListener('dragleave', function(e) {
+      document.body.style.background = '';
+    });
+    
+    document.addEventListener('drop', function(e) {
+      e.preventDefault();
+      document.body.style.background = '';
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+          const fakeEvent = { target: { files: [file] } };
+          importData(fakeEvent);
+        } else {
+          showNotification("Seuls les fichiers JSON et CSV sont supportés", "error");
+        }
+      }
+    });
+
+    // Add swipe gestures for mobile
+    let startX = 0;
+    let startY = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+      if (!startX || !startY) return;
+      
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      
+      const diffX = startX - endX;
+      const diffY = startY - endY;
+      
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+        if (diffX > 0) {
+          // Swipe left - next session
+          const select = document.getElementById('sessionSelect');
+          const currentIndex = parseInt(select.value);
+          if (currentIndex < select.options.length - 1) {
+            select.value = currentIndex + 1;
+            selectSession();
+            showNotification("Session suivante", "info");
+          }
+        } else {
+          // Swipe right - previous session
+          const select = document.getElementById('sessionSelect');
+          const currentIndex = parseInt(select.value);
+          if (currentIndex > 0) {
+            select.value = currentIndex - 1;
+            selectSession();
+            showNotification("Session précédente", "info");
+          }
+        }
+      }
+      
+      startX = 0;
+      startY = 0;
+    });
+
+    // Add workout completion detection
+    function checkWorkoutCompletion() {
+      const exercises = sessions[currentSessionIndex];
+      let completedExercises = 0;
+      
+      exercises.forEach((_, idx) => {
+        let hasCompletedSerie = false;
+        for(let i = 0; i < 5; i++) {
+          const reps = +document.querySelector(`.reps[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          const weight = +document.querySelector(`.weight[data-ex='${idx}'][data-serie='${i}']`)?.value || 0;
+          if (reps > 0 && weight > 0) {
+            hasCompletedSerie = true;
+            break;
+          }
+        }
+        if (hasCompletedSerie) completedExercises++;
+      });
+      
+      if (completedExercises === exercises.length && exercises.length > 0) {
+        setTimeout(() => {
+          showNotification("🎉 Félicitations! Séance terminée!", "success");
+        }, 1000);
+      }
+    }
+
+    // Check for completion periodically
+    setInterval(checkWorkoutCompletion, 5000);
+  </script>
+</body>
+</html>
