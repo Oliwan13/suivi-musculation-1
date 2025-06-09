@@ -114,7 +114,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px; /* Adjusted minimum width for the table */
+            min-width: 900px; /* Adjusted minimum width for the table */
         }
         th, td {
             padding: 1rem 0.5rem;
@@ -135,7 +135,7 @@
             position: sticky;
             left: 0;
             background: inherit;
-            min-width: 110px; /* Reduced min-width for better column balance */
+            min-width: 90px; /* Reduced min-width for better column balance */
             text-align: left;
             padding-left: 1rem;
             font-weight: 600;
@@ -151,8 +151,8 @@
             align-items: center; /* Center items in the column */
         }
         .serie-input input {
-            width: 70px; /* Slightly reduced width for better fit */
-            padding: 0.5rem; /* Reduced padding */
+            width: 50px; /* Further reduced width for better fit */
+            padding: 0.2rem; /* Further reduced padding */
             font-size: 0.9rem; /* Slightly larger font */
             text-align: center;
             font-weight: 500;
@@ -278,7 +278,7 @@
                 right: 0.5rem; /* Adjusted to be inside the container */
             }
             .fixed-col {
-                min-width: 90px; /* Further reduced min-width for mobile */
+                min-width: 70px; /* Further reduced min-width for mobile */
                 padding-left: 0.5rem; /* Reduced padding on mobile */
             }
             .controls {
@@ -297,7 +297,7 @@
                 overflow-x: auto; /* Keep horizontal scroll for table */
             }
             table {
-                min-width: 600px; /* Adjusted minimum width for the table on mobile */
+                min-width: 550px; /* Adjusted minimum width for the table on mobile */
             }
             th, td {
                 padding: 0.5rem 0.2rem; /* Reduce cell padding */
@@ -306,8 +306,8 @@
                 flex-direction: column; /* Stack reps/weight vertically */
             }
             .serie-input input {
-                width: 55px; /* Adjust input width within series for mobile */
-                padding: 0.3rem;
+                width: 50px; /* Adjust input width within series for mobile */
+                padding: 0.2rem;
             }
             .timer-btn {
                 padding: 0.6rem 0.8rem; /* Smaller padding for timer buttons */
@@ -530,7 +530,7 @@
                 }
                 
                 tr.innerHTML = `
-                    <td class="fixed-col">${ex.name}</td>
+                    <td class="fixed-col" title="${ex.name}">${ex.name}</td>
                     ${seriesHtml}
                     <td id="tonnage-${idx}">0</td>
                     <td id="onerm-${idx}">0</td>
@@ -622,7 +622,7 @@
             
             const previous = +dom.previousWeekInput.value || 0; // The `+` operator will convert text to number
             const delta = totalTonnage - previous;
-            // Add the +/- sign based on the delta value
+            /* Added delta sign */
             const deltaSign = delta > 0 ? '+' : '';
             dom.deltaEl.textContent = `${deltaSign}${delta.toFixed(0)} kg`;
             dom.deltaEl.style.color = delta > 0 ? 'var(--success-grad-start)' : delta < 0 ? 'var(--danger-grad-start)' : 'inherit';
@@ -734,8 +734,8 @@
             localStorage.removeItem('inProgressWorkout');
             createTable();
             dom.totalTimeEl.textContent = "00:00:00";
-            dom.totalTonnageEl.textContent = "0 kg"; // Reset with kg
-            dom.deltaEl.textContent = "0 kg"; // Reset with kg
+            dom.totalTonnageEl.textContent = "0 kg"; /* Reset with kg */
+            dom.deltaEl.textContent = "0 kg"; /* Reset with kg */
             dom.previousWeekInput.value = "";
         }
 
@@ -776,7 +776,7 @@
                         ex.series.forEach((s) => { 
                              const oneRM = calculate1RM(s.weight, s.reps);
                              if (oneRM > exerciseMax1RM) {
-                                 exerciseMax1RM = oneRM; // Corrected assignment
+                                 oneRM = exerciseMax1RM; // Corrected assignment
                              }
                         });
                         detailsHtml += `<li><strong>${ex.name}</strong> (<strong>1RM: ${exerciseMax1RM.toFixed(1)} kg</strong>)</li>`;
@@ -999,8 +999,8 @@
             dom.toggleWorkoutTimerBtn.textContent = '▶️ Play';
             localStorage.removeItem('inProgressWorkout');
             dom.totalTimeEl.textContent = "00:00:00";
-            dom.totalTonnageEl.textContent = "0 kg"; // Reset with kg
-            dom.deltaEl.textContent = "0 kg"; // Reset with kg
+            dom.totalTonnageEl.textContent = "0 kg"; /* Reset with kg */
+            dom.deltaEl.textContent = "0 kg"; /* Reset with kg */
             dom.previousWeekInput.value = "";
 
             let sessionIndexToLoad = state.sessions.findIndex(s => s.name === historicalSession.sessionName);
@@ -1179,8 +1179,8 @@
                     dom.toggleWorkoutTimerBtn.textContent = '⏯️ Pause';
                     localStorage.removeItem('inProgressWorkout');
                     dom.totalTimeEl.textContent = "00:00:00";
-                    dom.totalTonnageEl.textContent = "0 kg"; // Reset with kg
-                    dom.deltaEl.textContent = "0 kg"; // Reset with kg
+                    dom.totalTonnageEl.textContent = "0 kg"; /* Reset with kg */
+                    dom.deltaEl.textContent = "0 kg"; /* Reset with kg */
                     dom.previousWeekInput.value = "";
                 }
                 state.currentSessionIndex = +dom.sessionSelect.value;
@@ -1265,7 +1265,7 @@
                                         return false;
                                     }
                                     // Check series array and its properties
-                                    return serie.reps !== undefined && serie.weight !== undefined && typeof serie.reps === 'number' && typeof serie.weight === 'number';
+                                    return typeof serie.reps === 'number' && typeof serie.weight === 'number';
                                 });
                             });
 
@@ -1404,7 +1404,7 @@
                 };
                 reader.readAsText(file);
             });
-            document.getElementById('importBtn').addEventListener('click', () => dom.importFileInput.click()); // Moved here
+            document.getElementById('importBtn').addEventListener('click', () => dom.importFileInput.click()); /* Moved here */
             document.getElementById('closeHistoryModal').addEventListener('click', () => dom.historyModal.classList.add('hidden'));
             dom.themeToggleBtn.addEventListener('click', () => {
                 const newTheme = dom.body.classList.contains('dark-mode') ? 'light' : 'dark';
