@@ -8,7 +8,7 @@
     <!-- CSP is intentionally kept minimal to allow inline scripts for demonstration purposes. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
 
-    <title>Suivi Séance Musculation - Enhanced v3</title>
+    <title>Suivi Séance Musculation - Enhanced v4</title>
     
     <style>
         :root {
@@ -67,6 +67,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
             transition: background 0.3s;
+            position: relative; /* Added for positioning theme switcher */
         }
         h2 {
             text-align: center;
@@ -79,7 +80,6 @@
             justify-content: center; /* Horizontally center items */
             gap: 0.5rem; /* Space between SVG and text */
         }
-        /* The SVG icon for the logo was removed as requested */
         h3 {
             font-weight: 600; /* Slightly less bold than h2 */
             color: var(--header-color);
@@ -114,7 +114,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1100px; /* Adjusted to accommodate removal of 'Actions' column */
+            min-width: 1000px; /* Adjusted minimum width for the table */
         }
         th, td {
             padding: 1rem 0.5rem;
@@ -135,10 +135,13 @@
             position: sticky;
             left: 0;
             background: inherit;
-            min-width: 150px; /* Reduced min-width for better mobile fit */
+            min-width: 110px; /* Reduced min-width for better column balance */
             text-align: left;
             padding-left: 1rem;
             font-weight: 600;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow content */
+            text-overflow: ellipsis; /* Add ellipsis for hidden content */
         }
         .exercise-row:nth-child(even) { background: var(--row-bg-even); }
         .serie-input {
@@ -148,8 +151,8 @@
             align-items: center; /* Center items in the column */
         }
         .serie-input input {
-            width: 80px; /* Larger width for better touch target */
-            padding: 0.6rem; /* More padding */
+            width: 70px; /* Slightly reduced width for better fit */
+            padding: 0.5rem; /* Reduced padding */
             font-size: 0.9rem; /* Slightly larger font */
             text-align: center;
             font-weight: 500;
@@ -215,7 +218,12 @@
         .progress-bar { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin: 1rem 0; }
         .progress-fill { height: 100%; background: linear-gradient(135deg, var(--success-grad-start), var(--success-grad-end)); border-radius: 4px; transition: width 0.5s ease; }
         .hidden { display: none !important; }
-        .theme-switcher { position: absolute; top: 1rem; right: 1rem; }
+        .theme-switcher { 
+            position: absolute; 
+            top: 1rem; 
+            right: 1rem;
+            z-index: 11; /* Ensure it's above other elements */
+        }
         .total-time-container {
             display: flex;
             flex-direction: column;
@@ -254,6 +262,7 @@
         @media (max-width: 768px) {
             body {
                 padding: 0.5rem;
+                padding-bottom: 70px; /* Added padding to ensure last button is visible */
                 font-size: 14px; /* Smaller base font for mobile */
             }
             .main-container {
@@ -261,6 +270,16 @@
             }
             h2 {
                 font-size: 1.5rem; /* Smaller title for mobile */
+                margin-top: 2rem; /* Add space for the theme switcher */
+            }
+            .theme-switcher {
+                position: absolute;
+                top: 0.5rem; /* Adjusted to be inside the container */
+                right: 0.5rem; /* Adjusted to be inside the container */
+            }
+            .fixed-col {
+                min-width: 90px; /* Further reduced min-width for mobile */
+                padding-left: 0.5rem; /* Reduced padding on mobile */
             }
             .controls {
                 flex-direction: column;
@@ -278,20 +297,17 @@
                 overflow-x: auto; /* Keep horizontal scroll for table */
             }
             table {
-                min-width: 700px; /* Keep a reasonable minimum width for the table */
+                min-width: 600px; /* Adjusted minimum width for the table on mobile */
             }
             th, td {
                 padding: 0.5rem 0.2rem; /* Reduce cell padding */
-            }
-            .fixed-col {
-                min-width: 120px; /* Further reduce fixed column width */
             }
             .serie-input {
                 flex-direction: column; /* Stack reps/weight vertically */
             }
             .serie-input input {
-                width: 60px; /* Adjust input width within series */
-                padding: 0.4rem;
+                width: 55px; /* Adjust input width within series for mobile */
+                padding: 0.3rem;
             }
             .timer-btn {
                 padding: 0.6rem 0.8rem; /* Smaller padding for timer buttons */
@@ -341,7 +357,6 @@
             <option value="3">Épaules/Bras</option>
             <option value="4">Dos/Pec</option>
           </select>
-          <!-- Moved the "Nouvelle Séance" button here -->
           <button class="btn btn-primary" id="createNewSessionTypeBtn" aria-label="Créer une nouvelle séance">Nouvelle Séance</button>
         </div>
         
@@ -359,14 +374,12 @@
                 <th>1RM</th>
                 <th>Repos</th>
                 <th>Minuteur</th>
-                <th></th> <!-- New empty header for the delete column -->
-              </tr>
+                <th></th> </tr>
             </thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
         
-        <!-- Section pour ajouter un exercice, stylisée de manière similaire aux contrôles -->
         <div class="controls add-exercise-section">
             <input type="text" id="customExercise" placeholder="Ajouter un exercice">
             <button class="btn btn-success" id="addExerciseBtn" aria-label="Ajouter l'exercice">+</button>
@@ -379,7 +392,7 @@
             </div>
             <div class="summary-card">
                 <h3>📊 Semaine Précédente</h3>
-                <input type="number" id="previousWeek" placeholder="Tonnage Préc. (kg)">
+                <input type="text" id="previousWeek" placeholder="Tonnage Préc. (kg)">
             </div>
             <div class="summary-card">
                 <h3>📈 Progression</h3>
@@ -413,7 +426,6 @@
       </div>
     </div>
 
-    <!-- Nouveau modal pour la création de session -->
     <div id="newSessionModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="closeNewSessionModal" class="modal-close-btn" aria-label="Fermer le modal">&times;</button>
@@ -426,7 +438,6 @@
         </div>
     </div>
 
-    <!-- New Modal for Load Session Options -->
     <div id="loadOptionsModal" class="modal-overlay hidden">
       <div class="modal-content">
           <button id="closeLoadOptionsModal" class="modal-close-btn" aria-label="Fermer le modal">&times;</button>
@@ -609,7 +620,7 @@
             
             dom.totalTonnageEl.textContent = `${totalTonnage.toFixed(0)} kg`;
             
-            const previous = +dom.previousWeekInput.value || 0;
+            const previous = +dom.previousWeekInput.value || 0; // The `+` operator will convert text to number
             const delta = totalTonnage - previous;
             // Add the +/- sign based on the delta value
             const deltaSign = delta > 0 ? '+' : '';
@@ -821,7 +832,7 @@
         }
         
         // --- UTILITY & UI FUNCTIONS ---
-        function showNotification(message, type = 'info', duration = 3000) {
+        function showNotification(message, type = 'info', duration = 5000) { /* duration is now 5 seconds */
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
@@ -1165,7 +1176,7 @@
                     state.workoutStartTime = null;
                     state.isWorkoutTimerPaused = false;
                     state.pausedTime = 0;
-                    dom.toggleWorkoutTimerBtn.textContent = '▶️ Play';
+                    dom.toggleWorkoutTimerBtn.textContent = '⏯️ Pause';
                     localStorage.removeItem('inProgressWorkout');
                     dom.totalTimeEl.textContent = "00:00:00";
                     dom.totalTonnageEl.textContent = "0 kg"; // Reset with kg
@@ -1215,7 +1226,8 @@
                 } 
             });
 
-            dom.previousWeekInput.addEventListener('input', updateAllTotals);
+            // The 'input' event listener for previousWeek is still needed for calculation
+            dom.previousWeekInput.addEventListener('input', updateAllTotals); 
 
             dom.tbody.addEventListener('click', handleTableActions);
             document.getElementById('finishSessionBtn').addEventListener('click', finishAndSaveSession);
@@ -1253,10 +1265,7 @@
                                         return false;
                                     }
                                     // Check series array and its properties
-                                    return exercise.series.every(serie => {
-                                        // Ensure reps and weight are numbers (can be 0)
-                                        return typeof serie.reps === 'number' && typeof serie.weight === 'number';
-                                    });
+                                    return serie.reps !== undefined && serie.weight !== undefined && typeof serie.reps === 'number' && typeof serie.weight === 'number';
                                 });
                             });
 
@@ -1400,7 +1409,7 @@
             dom.themeToggleBtn.addEventListener('click', () => {
                 const newTheme = dom.body.classList.contains('dark-mode') ? 'light' : 'dark';
                 applyTheme(newTheme);
-                localStorage.setItem('theme', newTheme);
+                localStorage.setItem('theme', newTheme); // Persist user's manual preference
             });
             dom.toggleWorkoutTimerBtn.addEventListener('click', () => {
                 if (state.workoutStartTime) {
@@ -1544,8 +1553,24 @@
 
         // --- INITIALIZATION ---
         function init() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            applyTheme(savedTheme);
+            const savedTheme = localStorage.getItem('theme'); // Retrieve saved theme if any
+
+            if (savedTheme) {
+                // If a theme is explicitly saved by the user, use it
+                applyTheme(savedTheme);
+            } else {
+                // If no theme is saved, use the system's preferred color scheme
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+                applyTheme(prefersDark.matches ? 'dark' : 'light');
+
+                // Add a listener for changes in system preference, but only if no user preference is set
+                prefersDark.addEventListener('change', (e) => {
+                    // Re-check localStorage in case user manually set a theme since the listener was added
+                    if (!localStorage.getItem('theme')) {
+                        applyTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
 
             const inProgress = JSON.parse(localStorage.getItem('inProgressWorkout'));
             if (inProgress?.customSessions) {
