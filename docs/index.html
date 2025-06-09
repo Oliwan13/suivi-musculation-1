@@ -114,10 +114,11 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px; /* Adjusted minimum width for the table */
+            table-layout: fixed; /* Crucial for controlling column widths precisely */
+            min-width: 865px; /* Sum of individual column widths on desktop */
         }
         th, td {
-            padding: 1rem 0.5rem;
+            padding: 0.8rem 0.3rem; /* Reduced padding for more compactness */
             text-align: center;
             border-bottom: 1px solid var(--border-color);
         }
@@ -131,18 +132,41 @@
             z-index: 10;
             font-weight: 700; /* Bolder for table headers */
         }
-        .fixed-col {
-            position: sticky;
-            left: 0;
-            background: inherit;
-            min-width: 90px; /* Reduced min-width for better column balance */
-            text-align: left;
-            padding-left: 1rem;
-            font-weight: 600;
-            white-space: nowrap; /* Prevent text wrapping */
-            overflow: hidden; /* Hide overflow content */
-            text-overflow: ellipsis; /* Add ellipsis for hidden content */
+        /* Specific column widths for desktop */
+        .fixed-col { /* Exercice column (td) */
+            width: 150px; /* Increased width for desktop to show longer names */
+            text-align: center;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Allow content to overflow initially, handled by cell height */
+            text-overflow: clip; /* Do not show ellipsis */
         }
+
+        table tr td:nth-child(2), /* Serie 1 */
+        table tr td:nth-child(3), /* Serie 2 */
+        table tr td:nth-child(4), /* Serie 3 */
+        table tr td:nth-child(5), /* Serie 4 */
+        table tr td:nth-child(6) { /* Serie 5 */
+            width: 65px; /* Width for each series column on desktop */
+        }
+
+        table tr td:nth-child(7) { /* Tonnage */
+            width: 75px;
+        }
+        table tr td:nth-child(8) { /* 1RM */
+            width: 75px;
+        }
+        table tr td:nth-child(9) { /* Repos */
+            width: 70px;
+        }
+        table tr td:nth-child(10) { /* Minuteur */
+            width: 120px;
+        }
+        table tr td:nth-child(11) { /* Remove button */
+            width: 50px;
+        }
+
         .exercise-row:nth-child(even) { background: var(--row-bg-even); }
         .serie-input {
             display: flex; /* Use flexbox for reps and weight inputs */
@@ -277,9 +301,39 @@
                 top: 0.5rem; /* Adjusted to be inside the container */
                 right: 0.5rem; /* Adjusted to be inside the container */
             }
+            table {
+                min-width: 720px; /* Sum of individual column widths on mobile */
+            }
+            /* Specific column widths for mobile */
             .fixed-col {
-                min-width: 70px; /* Further reduced min-width for mobile */
-                padding-left: 0.5rem; /* Reduced padding on mobile */
+                width: 120px; /* Adjusted width for mobile to show longer names */
+                padding-left: 0.3rem;
+                padding-right: 0.3rem;
+            }
+            table tr td:nth-child(2),
+            table tr td:nth-child(3),
+            table tr td:nth-child(4),
+            table tr td:nth-child(5),
+            table tr td:nth-child(6) {
+                width: 55px; /* Width for each series column on mobile */
+            }
+            table tr td:nth-child(7) { /* Tonnage */
+                width: 65px;
+            }
+            table tr td:nth-child(8) { /* 1RM */
+                width: 65px;
+            }
+            table tr td:nth-child(9) { /* Repos */
+                width: 50px; /* Slightly more compact for mobile */
+            }
+            table tr td:nth-child(10) { /* Minuteur */
+                width: 100px;
+            }
+            table tr td:nth-child(11) { /* Remove button */
+                width: 45px;
+            }
+            th, td {
+                padding: 0.5rem 0.1rem; /* Further reduce cell padding for mobile */
             }
             .controls {
                 flex-direction: column;
@@ -295,12 +349,6 @@
             }
             .table-container {
                 overflow-x: auto; /* Keep horizontal scroll for table */
-            }
-            table {
-                min-width: 550px; /* Adjusted minimum width for the table on mobile */
-            }
-            th, td {
-                padding: 0.5rem 0.2rem; /* Reduce cell padding */
             }
             .serie-input {
                 flex-direction: column; /* Stack reps/weight vertically */
@@ -776,7 +824,7 @@
                         ex.series.forEach((s) => { 
                              const oneRM = calculate1RM(s.weight, s.reps);
                              if (oneRM > exerciseMax1RM) {
-                                 oneRM = exerciseMax1RM; // Corrected assignment
+                                 exerciseMax1RM = oneRM; // Corrected assignment
                              }
                         });
                         detailsHtml += `<li><strong>${ex.name}</strong> (<strong>1RM: ${exerciseMax1RM.toFixed(1)} kg</strong>)</li>`;
