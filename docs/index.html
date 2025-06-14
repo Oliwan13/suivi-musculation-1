@@ -716,6 +716,12 @@
             transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .hidden { display: none !important; }
+        .show-notes-section {
+            display: block !important; /* Force display when toggled */
+        }
+        .hide-notes-section {
+            display: none !important; /* Force hide when toggled */
+        }
 
         .theme-switcher { 
             position: absolute;
@@ -1013,8 +1019,8 @@
 
         /* Bottom Navigation Bar */
         .bottom-navigation {
-            position: fixed;
-            bottom: 0;
+            position: fixed; /* Always present on screen */
+            bottom: 0; /* Align to the bottom */
             left: 0;
             width: 100%;
             background: var(--container-bg);
@@ -1026,8 +1032,8 @@
             z-index: 999;
             border-top-left-radius: var(--border-radius-large);
             border-top-right-radius: var(--border-radius-large);
-            padding-bottom: env(safe-area-inset-bottom, var(--spacing-sm));
-            height: 70px;
+            padding-bottom: env(safe-area-inset-bottom, var(--spacing-sm)); /* For iPhones with notch */
+            height: 70px; /* Fixed height for consistency */
         }
         .bottom-navigation .btn {
             flex: 1;
@@ -1065,21 +1071,26 @@
             color: var(--primary-color);
         }
 
-
         /* Responsive adjustments */
         @media (min-width: 769px) {
             .exercise-list-container .mobile-cards {
                 display: none !important;
             }
             .bottom-navigation {
-                display: none !important;
+                display: none !important; /* Hide on desktop */
+            }
+            body { /* Adjust padding for desktop view to avoid issues with fixed bottom nav */
+                padding-bottom: var(--spacing-xxl);
+            }
+            .session-notes-section {
+                display: block !important; /* Always visible on desktop */
             }
         }
 
         @media (max-width: 768px) {
             body { 
                 padding: var(--spacing-md); 
-                padding-bottom: calc(var(--spacing-md) + 70px);
+                padding-bottom: calc(var(--spacing-md) + 70px); /* Add space for fixed bottom nav */
             }
             .main-container { padding: var(--spacing-lg); border-radius: var(--border-radius-base); }
             h2 { font-size: 2rem; margin-bottom: var(--spacing-xl); }
@@ -1253,7 +1264,7 @@
             </div>
         </section>
 
-        <section class="controls" style="margin-top: var(--spacing-lg);">
+        <section class="controls session-notes-section" id="sessionNotesSection">
             <label for="sessionNotes"><strong>Notes de Séance:</strong></label>
             <textarea id="sessionNotes" placeholder="Ajouter des notes sur la séance..." aria-label="Notes de séance"></textarea>
         </section>
@@ -1350,6 +1361,10 @@
             <i class="fas fa-plus-circle"></i>
             <span>Exercice</span>
         </button>
+        <button class="btn btn-primary" id="bottomNotesBtn" aria-label="Notes de séance">
+            <i class="fas fa-clipboard"></i>
+            <span>Notes</span>
+        </button>
         <button class="btn btn-primary" id="bottomFinishSessionBtn" aria-label="Terminer la séance">
             <i class="fas fa-flag-checkered"></i>
             <span>Terminer</span>
@@ -1423,6 +1438,8 @@
             bottomFinishSessionBtn: document.getElementById('bottomFinishSessionBtn'),
             bottomViewHistoryBtn: document.getElementById('bottomViewHistoryBtn'),
             bottomPlateCalculatorBtn: document.getElementById('bottomPlateCalculatorBtn'),
+            bottomNotesBtn: document.getElementById('bottomNotesBtn'), // New notes button
+            sessionNotesSection: document.getElementById('sessionNotesSection'), // Notes section
             exportBtn: document.getElementById('exportBtn'),
             importBtn: document.getElementById('importBtn')
         };
@@ -1442,7 +1459,8 @@
             autoSaveInterval: null, 
             linkingState: { active: false, fromIndex: null }, 
             quickEditIndex: null,
-            isMobileView: window.matchMedia("(max-width: 768px)").matches
+            isMobileView: window.matchMedia("(max-width: 768px)").matches,
+            isNotesSectionVisible: false // New state for notes visibility
         };
         
         const defaultSessions = [
@@ -1727,8 +1745,12 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
              const duration = Math.max(restSeconds, 60); 
 
             if (timerAction === 'start') {
-                const endTime = Date.now() + duration * 1000;
-                localStorage.setItem(`timer-${idx}`, JSON.stringify({ endTime, name: exercise.name }));
+                // Save timer state to localStorage for persistence across page exits
+                localStorage.setItem(`timer-${idx}`, JSON.stringify({
+                    endTime: Date.now() + duration * 1000,
+                    name: exercise.name,
+                    startTime: Date.now() // Store start time for accurate resume
+                }));
                 
                 if (state.timers[idx] && state.timers[idx].interval) clearInterval(state.timers[idx].interval);
                 state.timers[idx] = {
@@ -1958,7 +1980,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                 <span class="card-stat-value" id="tonnage-${idx}">0</span>
                             </div>
                             <div class="card-stat-item">
-                                <span class="card-stat-label">1RM Max</span>
+                                <span class="card-stat-label">1RM Moy</span>
                                 <span class="card-stat-value" id="onerm-${idx}">0</span>
                             </div>
                             <div class="card-stat-item">
@@ -1993,9 +2015,22 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
         function calculate1RM(weight, reps) {
             if (reps <= 0 || weight <= 0) return 0;
+            // Brzycki formula
             const brzycki1RM = weight / (1.0278 - (0.0278 * reps));
+            // Mayhew formula (common for 1RM estimations)
             const mayhew1RM = (100 * weight) / (52.2 + (41.9 * Math.exp(-0.055 * reps)));
-            return (brzycki1RM + mayhew1RM) / 2;
+            // Epley formula
+            const epley1RM = weight * (1 + (reps / 30));
+            // Lander formula
+            const lander1RM = (100 * weight) / (101.3 - 2.67123 * reps);
+            // Lombardi formula
+            const lombardi1RM = weight * Math.pow(reps, 0.10);
+
+            // Average of commonly used formulas
+            const validFormulas = [brzycki1RM, mayhew1RM, epley1RM, lander1RM, lombardi1RM].filter(val => !isNaN(val) && val > 0);
+
+            if (validFormulas.length === 0) return 0;
+            return validFormulas.reduce((sum, val) => sum + val, 0) / validFormulas.length;
         }
 
         function updateAllTotals() {
@@ -2004,9 +2039,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             const exercises = state.sessions[state.currentSessionIndex]?.exercises || [];
             let totalPossibleSeries = exercises.length * 5;
             
-            exercises.forEach((_, idx) => {
+            exercises.forEach((ex, idx) => {
                 let exerciseTonnage = 0;
-                let exerciseMax1RM = 0;
+                let oneRMs = []; // Array to store 1RM values for each valid series
+                let validSeriesCount = 0; // Count of valid series for weighting
+
                 for (let i = 0; i < 5; i++) {
                     const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
                     const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
@@ -2014,30 +2051,25 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     const repsValue = repsInput?.value.trim() || '';
                     const weightValue = weightInput?.value.trim() || '';
 
-                    // Split values by '+' and calculate for each segment
                     const repsSegments = repsValue.split('+').map(s => parseFloat(s.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0);
                     const weightSegments = weightValue.split('+').map(s => parseFloat(s.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0);
 
                     let currentSeriesTonnage = 0;
-                    let currentSeriesMax1RM = 0;
+                    let currentSeriesValid = false;
 
-                    // Calculate for each pair of (weight, reps) segments
                     const minLength = Math.min(repsSegments.length, weightSegments.length);
                     for (let k = 0; k < minLength; k++) {
                         const reps = repsSegments[k];
                         const weight = weightSegments[k];
                         
                         currentSeriesTonnage += reps * weight;
-                        const current1RM = calculate1RM(weight, reps);
-                        if (current1RM > currentSeriesMax1RM) {
-                            currentSeriesMax1RM = current1RM;
+                        if (reps > 0 && weight > 0) {
+                            oneRMs.push(calculate1RM(weight, reps));
+                            currentSeriesValid = true;
                         }
                     }
 
-                    // Check if the series is considered 'completed' based on *any* valid input
-                    const isComplete = repsSegments.length > 0 && weightSegments.length > 0 && repsSegments.every(r => r > 0) && weightSegments.every(w => w > 0);
-                    
-                    if (isComplete) {
+                    if (currentSeriesValid) {
                         repsInput.classList.add('completed');
                         weightInput.classList.add('completed');
                         completedSeriesOverall++;
@@ -2047,10 +2079,24 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
                     
                     exerciseTonnage += currentSeriesTonnage;
-                    if (currentSeriesMax1RM > exerciseMax1RM) {
-                        exerciseMax1RM = currentSeriesMax1RM;
-                    }
                 }
+
+                // Calculate weighted average 1RM for the exercise
+                let weightedAverage1RM = 0;
+                if (oneRMs.length > 0) {
+                    let totalWeighted1RM = 0;
+                    let totalWeightSum = 0;
+                    for (let j = 0; j < oneRMs.length; j++) {
+                        // More recent series get higher weight.
+                        // Example weighting: last series = 1.0, second last = 0.9, etc.
+                        // You can adjust the weighting factor (e.g., 0.1 for a smaller drop)
+                        const weightFactor = 1 - (oneRMs.length - 1 - j) * 0.1; // Decreasing weight for older series
+                        totalWeighted1RM += oneRMs[j] * weightFactor;
+                        totalWeightSum += weightFactor;
+                    }
+                    weightedAverage1RM = totalWeighted1RM / totalWeightSum;
+                }
+
                 const tonnageEl = document.getElementById(`tonnage-${idx}`);
                 if(tonnageEl) {
                     tonnageEl.textContent = exerciseTonnage.toFixed(0);
@@ -2058,8 +2104,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 }
                 const oneRmEl = document.getElementById(`onerm-${idx}`);
                 if (oneRmEl) {
-                    oneRmEl.textContent = exerciseMax1RM > 0 ? exerciseMax1RM.toFixed(1) : '0';
-                    oneRmEl.classList.toggle('onerm-high', exerciseMax1RM > 0);
+                    oneRmEl.textContent = weightedAverage1RM > 0 ? weightedAverage1RM.toFixed(1) : '0';
+                    oneRmEl.classList.toggle('onerm-high', weightedAverage1RM > 0);
                 }
                 totalTonnage += exerciseTonnage;
             });
@@ -2100,6 +2146,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 customSessions: state.sessions,
                 workoutStartTime: state.workoutStartTime,
                 isWorkoutTimerPaused: state.isWorkoutTimerPaused,
+                // Ensure pausedTime is updated correctly before saving
                 pausedTime: state.isWorkoutTimerPaused ? state.pausedTime : (state.workoutStartTime ? (Date.now() - new Date(state.workoutStartTime).getTime()) / 1000 : 0),
                 saveTimestamp: Date.now(),
                 sessionNotes: dom.sessionNotesInput.value
@@ -2339,10 +2386,9 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                        <p><strong>Tonnage Total :</strong> ${session.totalTonnage} kg</p>
                                        <ul>`;
                     session.exercises.forEach(ex => {
-                        let exerciseMax1RM = 0;
+                        let exerciseOneRMs = []; // Store 1RMs for all valid series in this exercise
                         if (ex.series && ex.series.length > 0) {
                             ex.series.forEach(s => {
-                                // Handle multiple reps/weights for 1RM calculation
                                 const repsValues = String(s.reps).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val > 0);
                                 const weightValues = String(s.weight).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val > 0);
                                 
@@ -2350,14 +2396,24 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                 for (let k = 0; k < minLength; k++) {
                                     const reps = repsValues[k];
                                     const weight = weightValues[k];
-                                    const oneRM = calculate1RM(weight, reps);
-                                    if (oneRM > exerciseMax1RM) {
-                                        exerciseMax1RM = oneRM;
+                                    if (reps > 0 && weight > 0) {
+                                        exerciseOneRMs.push(calculate1RM(weight, reps));
                                     }
                                 }
                             });
                         }
-                        detailsHtml += `<li><strong>${ex.name}</strong> - 1RM Max: ${exerciseMax1RM.toFixed(1)} kg</li>`;
+                        let weightedAverage1RM = 0;
+                        if (exerciseOneRMs.length > 0) {
+                            let totalWeighted1RM = 0;
+                            let totalWeightSum = 0;
+                            for (let j = 0; j < exerciseOneRMs.length; j++) {
+                                const weightFactor = 1 - (exerciseOneRMs.length - 1 - j) * 0.1;
+                                totalWeighted1RM += exerciseOneRMs[j] * weightFactor;
+                                totalWeightSum += weightFactor;
+                            }
+                            weightedAverage1RM = totalWeighted1RM / totalWeightSum;
+                        }
+                        detailsHtml += `<li><strong>${ex.name}</strong> - 1RM Moy: ${weightedAverage1RM.toFixed(1)} kg</li>`;
                     });
                     detailsHtml += '</ul>';
                     detailsDiv.innerHTML = detailsHtml;
@@ -2691,6 +2747,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             document.addEventListener('mousemove', resetInactivityTimer);
             document.addEventListener('keydown', resetInactivityTimer);
             document.addEventListener('click', resetInactivityTimer);
+            // Add listeners for visibility changes
+            document.addEventListener('visibilitychange', handleVisibilityChange);
         }
 
         function stopInactivityAndAutoSaveTimers() {
@@ -2700,6 +2758,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             document.removeEventListener('mousemove', resetInactivityTimer);
             document.removeEventListener('keydown', resetInactivityTimer);
             document.removeEventListener('click', resetInactivityTimer);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         }
 
         function startTotalWorkoutTimer() {
@@ -2735,6 +2794,26 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.timerPlayPauseText.textContent = 'Play';
             updateTotalTimeDisplay(); 
             saveCurrentState();
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                // User is leaving the page
+                if (state.workoutStartTime && !state.isWorkoutTimerPaused) {
+                    pauseTotalWorkoutTimer();
+                    saveCurrentState(); // Ensure state is saved immediately
+                }
+            } else {
+                // User is returning to the page
+                const inProgress = JSON.parse(localStorage.getItem('inProgressWorkout'));
+                if (inProgress && inProgress.workoutStartTime && !inProgress.isWorkoutTimerPaused) {
+                    // Resume timer from where it was left off
+                    state.workoutStartTime = new Date(Date.now() - inProgress.pausedTime * 1000).toISOString(); // Adjust start time
+                    state.isWorkoutTimerPaused = false;
+                    state.pausedTime = inProgress.pausedTime;
+                    startTotalWorkoutTimer();
+                }
+            }
         }
 
         function applyTheme(theme) {
@@ -3040,12 +3119,12 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             }, true);
 
 
-            dom.exerciseListContainer.addEventListener('change', e => {
+            dom.exerciseListContainer.addEventListener('input', e => { // Changed to 'input' for dynamic 1RM update
                 if (e.target.classList.contains('reps') || e.target.classList.contains('weight')) {
                     if (!state.workoutStartTime) {
                         startTotalWorkoutTimer();
                     }
-                    updateAllTotals();
+                    updateAllTotals(); // Call updateAllTotals on every input change for dynamic 1RM
 
                     const element = e.target.closest('.exercise-row') || e.target.closest('.exercise-card');
                     const exIndex = parseInt(element.dataset.exerciseIndex, 10);
@@ -3177,7 +3256,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
             document.getElementById('closeHistoryModal').addEventListener('click', () => {
                 dom.historyModal.classList.remove('show');
-                dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once: true });
+                dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once : true });
             });
             dom.themeToggleBtn.addEventListener('click', () => {
                 const newTheme = dom.body.classList.contains('dark-mode') ? 'light' : 'dark';
@@ -3208,7 +3287,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             });
             dom.closePlateCalculatorModal.addEventListener('click', () => {
                 dom.plateCalculatorModal.classList.remove('show');
-                dom.plateCalculatorModal.addEventListener('transitionend', () => dom.plateCalculatorModal.classList.add('hidden'), { once: true });
+                dom.plateCalculatorModal.addEventListener('transitionend', () => dom.plateCalculatorModal.classList.add('hidden'), { once : true });
             });
             dom.targetWeightInput.addEventListener('input', calculatePlates);
             dom.barbellWeightInput.addEventListener('input', calculatePlates);
@@ -3233,7 +3312,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             // Quick Edit Modal Listeners
             dom.closeQuickEditModal.addEventListener('click', () => {
                 dom.quickEditModal.classList.remove('show');
-                dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once: true });
+                dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
             });
             dom.applyQuickEditBtn.addEventListener('click', () => {
                 if (state.quickEditIndex !== null) {
@@ -3247,7 +3326,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
                     updateAllTotals();
                     dom.quickEditModal.classList.remove('show');
-                    dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once: true });
+                    dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
                     showNotification("Séries mises à jour rapidement !", "success");
                 }
             });
@@ -3260,22 +3339,22 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (e.key === 'Escape') { 
                     if (dom.historyModal.classList.contains('show')) {
                         dom.historyModal.classList.remove('show');
-                        dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once: true });
+                        dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once : true });
                     }
                     if (dom.newSessionModal.classList.contains('show')) {
                         dom.newSessionModal.classList.remove('show');
-                        dom.newSessionModal.addEventListener('transitionend', () => dom.newSessionModal.classList.add('hidden'), { once: true });
+                        dom.newSessionModal.addEventListener('transitionend', () => dom.newSessionModal.classList.add('hidden'), { once : true });
                     }
                     if (dom.loadOptionsModal.classList.contains('show')) {
                         hideLoadOptionsModal();
                     }
                     if (dom.plateCalculatorModal.classList.contains('show')) {
                         dom.plateCalculatorModal.classList.remove('show');
-                        dom.plateCalculatorModal.addEventListener('transitionend', () => dom.plateCalculatorModal.classList.add('hidden'), { once: true });
+                        dom.plateCalculatorModal.addEventListener('transitionend', () => dom.plateCalculatorModal.classList.add('hidden'), { once : true });
                     }
                     if (dom.quickEditModal.classList.contains('show')) {
                         dom.quickEditModal.classList.remove('show');
-                        dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once: true });
+                        dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
                     }
                 }
             });
@@ -3286,6 +3365,18 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 setTimeout(() => {
                     dom.customExerciseInput.focus();
                 }, 300);
+            });
+            dom.bottomNotesBtn.addEventListener('click', () => {
+                state.isNotesSectionVisible = !state.isNotesSectionVisible;
+                if (state.isNotesSectionVisible) {
+                    dom.sessionNotesSection.classList.remove('hide-notes-section');
+                    dom.sessionNotesSection.classList.add('show-notes-section');
+                    dom.sessionNotesInput.focus();
+                    dom.sessionNotesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    dom.sessionNotesSection.classList.remove('show-notes-section');
+                    dom.sessionNotesSection.classList.add('hide-notes-section');
+                }
             });
             dom.bottomFinishSessionBtn.addEventListener('click', finishAndSaveSession);
             dom.bottomViewHistoryBtn.addEventListener('click', () => {
@@ -3332,8 +3423,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 state.pausedTime = inProgress.pausedTime || 0;
                 
                 if (state.workoutStartTime && !state.isWorkoutTimerPaused) {
+                    // Recalculate pausedTime on load if timer was active when closed
+                    // This uses the saved timestamp to estimate elapsed time since last save
                     const elapsedSinceSave = (Date.now() - (inProgress.saveTimestamp || new Date(state.workoutStartTime).getTime())) / 1000;
-                    state.pausedTime = (inProgress.pausedTime || 0);
+                    state.pausedTime = (inProgress.pausedTime || 0) + elapsedSinceSave;
                     startTotalWorkoutTimer();
                 } else if (state.workoutStartTime) {
                     dom.totalTimeEl.textContent = formatTime(state.pausedTime);
@@ -3344,6 +3437,15 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                  state.sessions = JSON.parse(JSON.stringify(defaultSessions));
             }
             
+            // Initialize notes section visibility on mobile
+            if (state.isMobileView) {
+                dom.sessionNotesSection.classList.add('hide-notes-section'); // Initially hidden on mobile
+                state.isNotesSectionVisible = false;
+            } else {
+                dom.sessionNotesSection.classList.add('show-notes-section'); // Always visible on desktop
+                state.isNotesSectionVisible = true;
+            }
+
             updateSessionSelectOptions(); 
             dom.sessionSelect.value = state.currentSessionIndex;
             createTable();
@@ -3355,6 +3457,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (newIsMobileView !== state.isMobileView) {
                     state.isMobileView = newIsMobileView;
                     createTable(); // Re-render table/cards based on new view state
+                    // Adjust notes section visibility based on new view state
+                    if (state.isMobileView && !state.isNotesSectionVisible) {
+                        dom.sessionNotesSection.classList.add('hide-notes-section');
+                    } else {
+                        dom.sessionNotesSection.classList.remove('hide-notes-section');
+                        dom.sessionNotesSection.classList.add('show-notes-section');
+                    }
                 }
             });
         }
@@ -3364,4 +3473,3 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
     </script>
 </body>
 </html>
-
