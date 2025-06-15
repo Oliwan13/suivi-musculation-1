@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA: Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -200,6 +202,19 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 4px hsla(220, 60%, 75%, 0.3);
         }
+        /* Invalid input styling */
+        input.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 4px hsla(0, 60%, 75%, 0.3);
+        }
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: var(--spacing-xxs);
+            text-align: center;
+            width: 100%;
+        }
+
         textarea {
             resize: vertical;
             min-height: 110px;
@@ -349,6 +364,21 @@
             padding: var(--spacing-xs);
             font-size: 0.9rem;
             text-align: center;
+        }
+        .serie-input-delete { /* Style for the new delete 'x' button for series */
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-left: var(--spacing-xxs);
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            padding: 0; /* Remove default padding */
+            line-height: 1; /* Align 'x' vertically */
+        }
+        .serie-input-delete:hover {
+            opacity: 1;
         }
         .exercise-card .series-input-group input.completed {
             background: linear-gradient(135deg, var(--success-grad-start), var(--success-grad-end));
@@ -840,9 +870,16 @@
         }
 
         .next-superset-exercise {
-            animation: pulse-row 1.5s infinite;
+            animation: pulse-border 1.5s infinite; /* Changed from pulse-row */
+            box-shadow: 0 0 10px 3px var(--info-color); /* Added a subtle glow */
         }
-        @keyframes pulse-row {
+        @keyframes pulse-border { /* New animation for superset indication */
+            0% { border-color: var(--info-color); }
+            50% { border-color: transparent; }
+            100% { border-color: var(--info-color); }
+        }
+        /* Keep pulse-row for consistency with comments if not used elsewhere, but new name is better */
+        @keyframes pulse-row { /* Original pulse-row, if still referenced */
             0% {
                 box-shadow: inset 0 2px 0 0 var(--success-color), inset 0 -2px 0 0 var(--success-color);
             }
@@ -961,15 +998,6 @@
             font-weight: 700;
             color: var(--primary-color);
         }
-        #platesResult h4 {
-            margin-top: var(--spacing-md);
-            margin-bottom: var(--spacing-xs);
-            color: var(--sub-header-color);
-        }
-        #platesResult p {
-            margin-bottom: var(--spacing-sm);
-            font-size: 0.95rem;
-        }
         #platesResult p span {
             background-color: var(--border-color);
             padding: 3px 6px;
@@ -1016,6 +1044,53 @@
             visibility: visible;
             opacity: 1;
         }
+        
+        /* PWA Install Prompt */
+        #pwaInstallPrompt {
+            position: fixed;
+            bottom: var(--spacing-xxl);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary-grad-start), var(--primary-grad-end));
+            color: var(--text-on-color);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius-button);
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #pwaInstallPrompt.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #pwaInstallPrompt button {
+            background: var(--text-on-color);
+            color: var(--primary-color);
+            border: none;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #pwaInstallPrompt button:hover {
+            opacity: 0.9;
+        }
+        #pwaInstallPrompt .close-btn {
+            background: none;
+            color: var(--text-on-color);
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        #pwaInstallPrompt .close-btn:hover {
+            opacity: 1;
+        }
+
 
         /* Bottom Navigation Bar */
         .bottom-navigation {
@@ -1037,7 +1112,7 @@
         }
         .bottom-navigation .btn {
             flex: 1;
-            margin: 0 var(--spacing-xs);
+            margin: 0 var(--spacing-xxs); /* Smaller margin for more buttons */
             padding: var(--spacing-xs) var(--spacing-sm);
             font-size: 0.9rem;
             border-radius: var(--border-radius-medium);
@@ -1106,20 +1181,18 @@
             /* Mobile specific adjustments for autocomplete suggestions */
             #autocompleteSuggestions {
                 top: auto;
-                bottom: calc(100% + var(--spacing-xs)); /* Position above the input field with spacing */
+                bottom: 100%; /* Position above the input field on mobile */
                 left: 0;
                 transform: translateX(0);
                 width: 100%;
                 max-width: 100%;
-                margin-bottom: 0; /* Remove extra margin here */
+                margin-bottom: var(--spacing-xs);
                 max-height: 150px;
                 overflow-y: auto;
                 border-radius: var(--border-radius-base); /* Apply full border-radius for standalone look */
                 box-shadow: 0 -4px 10px var(--shadow-medium);
             }
             .add-exercise-section {
-                /* On mobile, to ensure autocomplete suggestions appear above the input, 
-                   we make the input-group the positioned parent and give it relative positioning */
                 position: relative;
             }
             .add-exercise-section .input-group {
@@ -1212,7 +1285,7 @@
         
         <div class="controls">
           <label for="sessionSelect"><strong>Séance:</strong></label>
-          <select id="sessionSelect">
+          <select id="sessionSelect" aria-label="Sélectionner une séance d'entraînement">
             <option value="0">PUSH (Poitrine/Épaules/Triceps)</option>
             <option value="1">PULL (Dos/Biceps)</option>
             <option value="2">LEG (Jambes)</option>
@@ -1220,9 +1293,11 @@
             <option value="4">Dos/Pec</option>
           </select>
           <button class="btn btn-outline" id="createNewSessionTypeBtn" aria-label="Créer une nouvelle séance">Nouvelle Séance</button>
+          <!-- New Delete Current Session Button -->
+          <button class="btn btn-danger" id="deleteCurrentSessionBtn" aria-label="Supprimer la séance actuelle" title="Supprimer la séance actuelle (personnalisée)"><i class="fas fa-trash-alt"></i> Supprimer Séance</button>
         </div>
         
-        <div class="progress-bar">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar">
           <div class="progress-fill" id="progressFill"></div>
         </div>
         
@@ -1234,31 +1309,31 @@
                 <input type="text" id="customExercise" placeholder="Ajouter un exercice" aria-label="Nom de l'exercice personnalisé">
                 <button class="btn btn-success" id="addExerciseBtn" aria-label="Ajouter l'exercice"><i class="fas fa-plus"></i> Ajouter</button>
             </div>
-            <div id="autocompleteSuggestions" class="hidden"></div>
+            <div id="autocompleteSuggestions" class="hidden" role="listbox" aria-label="Suggestions d'exercices"></div>
         </section>
 
         <section class="summary-section">
             <div class="summary-card">
-                <span class="card-icon"><i class="fas fa-weight-hanging"></i></span>
+                <span class="card-icon" aria-hidden="true"><i class="fas fa-weight-hanging"></i></span>
                 <h3>Tonnage Total</h3>
-                <div class="value" id="totalTonnage">0 kg</div>
+                <div class="value" id="totalTonnage" aria-live="polite">0 kg</div>
             </div>
             <div class="summary-card">
-                <span class="card-icon"><i class="fas fa-chart-line"></i></span>
+                <span class="card-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
                 <h3>Semaine Précédente</h3>
                 <input type="text" id="previousWeek" placeholder="Tonnage Préc. (kg)" aria-label="Tonnage de la semaine précédente">
             </div>
             <div class="summary-card">
-                <span class="card-icon"><i class="fas fa-arrow-up"></i></span>
+                <span class="card-icon" aria-hidden="true"><i class="fas fa-arrow-up"></i></span>
                 <h3>Progression</h3>
-                <div class="value" id="delta">0 kg</div>
+                <div class="value" id="delta" aria-live="polite">0 kg</div>
             </div>
             <div class="summary-card">
-                <span class="card-icon"><i class="fas fa-clock"></i></span>
+                <span class="card-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
                 <h3>Temps Total</h3>
-                <div class="value" id="totalTime">00:00:00</div>
+                <div class="value" id="totalTime" aria-live="polite">00:00:00</div>
                 <button id="toggleWorkoutTimerBtn" class="btn btn-secondary" aria-label="Mettre en pause ou reprendre le minuteur" style="margin-top: var(--spacing-sm);">
-                    <span id="timerPlayPauseIcon">⏯️</span>
+                    <span id="timerPlayPauseIcon" aria-hidden="true">⏯️</span>
                     <span id="timerPlayPauseText">Pause</span>
                 </button>
             </div>
@@ -1270,116 +1345,154 @@
         </section>
         
         <section class="action-buttons">
-          <button class="btn btn-success" id="finishSessionBtn" aria-label="Terminer et Sauvegarder la séance"><i class="fas fa-save"></i> Terminer & Sauvegarder</button>
-          <button class="btn btn-primary" id="viewHistoryBtn" aria-label="Voir l'historique"><i class="fas fa-book"></i> Historique</button>
-          <button class="btn btn-primary" id="plateCalculatorBtn" aria-label="Ouvrir les calculateurs"><i class="fas fa-calculator"></i> Calculateurs</button>
+          <button class="btn btn-success" id="finishSessionBtn" aria-label="Terminer et Sauvegarder la séance"><i class="fas fa-save" aria-hidden="true"></i> Terminer & Sauvegarder</button>
+          <button class="btn btn-primary" id="viewHistoryBtn" aria-label="Voir l'historique"><i class="fas fa-book" aria-hidden="true"></i> Historique</button>
+          <button class="btn btn-primary" id="plateCalculatorBtn" aria-label="Ouvrir les calculateurs"><i class="fas fa-calculator" aria-hidden="true"></i> Calculateurs</button>
         </section>
 
         <section class="action-buttons" style="margin-top: var(--spacing-md);">
-            <button class="btn btn-info" id="exportBtn" aria-label="Exporter les données"><i class="fas fa-file-export"></i> Exporter</button>
-            <button class="btn btn-info" id="importBtn" aria-label="Importer les données"><i class="fas fa-file-import"></i> Importer</button>
+            <button class="btn btn-info" id="exportBtn" aria-label="Exporter les données"><i class="fas fa-file-export" aria-hidden="true"></i> Exporter</button>
+            <button class="btn btn-info" id="importBtn" aria-label="Importer les données"><i class="fas fa-file-import" aria-hidden="true"></i> Importer</button>
         </section>
-        <input type="file" id="importFile" class="hidden" accept=".json,.csv">
+        <input type="file" id="importFile" class="hidden" accept=".json,.csv" aria-label="Fichier d'importation">
     </div>
     
-    <div id="notification-container"></div>
+    <div id="notification-container" aria-live="polite" aria-atomic="true"></div>
     
-    <div id="historyModal" class="modal-overlay hidden">
+    <!-- PWA Install Prompt (new) -->
+    <div id="pwaInstallPrompt" class="hidden" role="dialog" aria-modal="true" aria-labelledby="pwaInstallTitle">
+        <span id="pwaInstallTitle" style="font-weight: 600;">Ajoutez Lyftiv à votre écran d'accueil !</span>
+        <button id="installPwaBtn" aria-label="Installer l'application">Installer</button>
+        <button id="closePwaPrompt" class="close-btn" aria-label="Fermer le message d'installation">&times;</button>
+    </div>
+
+    <div id="historyModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
       <div class="modal-content">
           <button id="closeHistoryModal" class="modal-close-btn" aria-label="Fermer le modal historique">&times;</button>
-          <h2>Historique des Séances</h2>
+          <h2 id="historyModalTitle">Historique des Séances</h2>
           <div id="historyList"></div>
       </div>
     </div>
 
-    <div id="newSessionModal" class="modal-overlay hidden">
+    <div id="newSessionModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="newSessionModalTitle">
         <div class="modal-content">
             <button id="closeNewSessionModal" class="modal-close-btn" aria-label="Fermer le modal de nouvelle séance">&times;</button>
-            <h2>Créer une Nouvelle Séance</h2>
-            <input type="text" id="newSessionNameInput" placeholder="Nom de la nouvelle séance" aria-label="Nom de la nouvelle séance">
+            <h2 id="newSessionModalTitle">Créer une Nouvelle Séance</h2>
+            <div class="input-group-modal">
+                <input type="text" id="newSessionNameInput" placeholder="Nom de la nouvelle séance" aria-label="Nom de la nouvelle séance">
+                <div id="newSessionNameError" class="error-message"></div>
+            </div>
             <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-                <button class="btn btn-outline" id="cancelNewSessionBtn"><i class="fas fa-times"></i> Annuler</button>
-                <button class="btn btn-success" id="createNewSessionBtn"><i class="fas fa-check"></i> Créer</button>
+                <button class="btn btn-outline" id="cancelNewSessionBtn"><i class="fas fa-times" aria-hidden="true"></i> Annuler</button>
+                <button class="btn btn-success" id="createNewSessionBtn"><i class="fas fa-check" aria-hidden="true"></i> Créer</button>
             </div>
         </div>
     </div>
 
-    <div id="loadOptionsModal" class="modal-overlay hidden">
+    <div id="loadOptionsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loadOptionsModalTitle">
       <div class="modal-content">
           <button id="closeLoadOptionsModal" class="modal-close-btn" aria-label="Fermer le modal d'options de chargement">&times;</button>
-          <h2>Options de Chargement</h2>
+          <h2 id="loadOptionsModalTitle">Options de Chargement</h2>
           <p>Comment utiliser la séance "<strong id="loadSessionName"></strong>" ?</p>
           <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-              <button class="btn btn-primary" id="openNewSessionBtn"><i class="fas fa-folder-open"></i> Ouvrir (remplace la séance actuelle)</button>
-              <button class="btn btn-secondary" id="appendToCurrentSessionBtn"><i class="fas fa-plus-square"></i> Ajouter à la séance actuelle</button>
+              <button class="btn btn-primary" id="openNewSessionBtn"><i class="fas fa-folder-open" aria-hidden="true"></i> Ouvrir (remplace la séance actuelle)</button>
+              <button class="btn btn-secondary" id="appendToCurrentSessionBtn"><i class="fas fa-plus-square" aria-hidden="true"></i> Ajouter à la séance actuelle</button>
           </div>
       </div>
     </div>
 
-    <div id="plateCalculatorModal" class="modal-overlay hidden">
+    <div id="plateCalculatorModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="plateCalcModalTitle">
         <div class="modal-content">
             <button id="closePlateCalculatorModal" class="modal-close-btn" aria-label="Fermer le modal du calculateur de plaques">&times;</button>
             <div class="modal-tabs">
-                <button class="modal-tab-btn active" id="plateCalcTab">Calculateur de Plaques</button>
-                <button class="modal-tab-btn" id="goalCalcTab">Objectifs d'Entraînement</button>
+                <button class="modal-tab-btn active" id="plateCalcTab" aria-controls="plateCalcContent" role="tab" aria-selected="true">Calculateur de Plaques</button>
+                <button class="modal-tab-btn" id="goalCalcTab" aria-controls="goalCalcContent" role="tab" aria-selected="false">Objectifs d'Entraînement</button>
             </div>
             
-            <div id="plateCalcContent" class="modal-tab-content">
-                <h2>Calculateur de Plaques</h2>
+            <div id="plateCalcContent" class="modal-tab-content" role="tabpanel" aria-labelledby="plateCalcTab">
+                <h2 id="plateCalcModalTitle">Calculateur de Plaques</h2>
                 <div class="controls">
-                    <input type="number" id="targetWeightInput" min="0" placeholder="Poids cible (kg)" aria-label="Poids cible">
-                    <input type="number" id="barbellWeightInput" min="0" placeholder="Poids barre (kg)" aria-label="Poids de la barre">
+                    <div class="input-group-modal">
+                        <input type="number" id="targetWeightInput" min="0" placeholder="Poids cible (kg)" aria-label="Poids cible">
+                        <div id="targetWeightError" class="error-message"></div>
+                    </div>
+                    <div class="input-group-modal">
+                        <input type="number" id="barbellWeightInput" min="0" placeholder="Poids barre (kg)" aria-label="Poids de la barre">
+                        <div id="barbellWeightError" class="error-message"></div>
+                    </div>
                 </div>
                 <div id="platesResult" style="text-align: left; margin-top: var(--spacing-lg);"></div>
             </div>
 
-            <div id="goalCalcContent" class="modal-tab-content hidden">
+            <div id="goalCalcContent" class="modal-tab-content hidden" role="tabpanel" aria-labelledby="goalCalcTab">
                 <h2>Objectifs d'Entraînement</h2>
                 <div class="controls">
-                    <input type="number" id="oneRmInput" min="0" placeholder="Votre 1RM (kg)" aria-label="Votre 1RM">
+                    <div class="input-group-modal">
+                        <input type="number" id="oneRmInput" min="0" placeholder="Votre 1RM (kg)" aria-label="Votre 1RM">
+                        <div id="oneRmError" class="error-message"></div>
+                    </div>
                 </div>
                 <div id="goalResultsContainer"></div>
             </div>
         </div>
     </div>
     
-    <div id="quickEditModal" class="modal-overlay hidden">
+    <div id="quickEditModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quickEditModalTitle">
       <div class="modal-content">
           <button id="closeQuickEditModal" class="modal-close-btn" aria-label="Fermer le modal d'édition rapide">&times;</button>
-          <h2>Édition Rapide</h2>
+          <h2 id="quickEditModalTitle">Édition Rapide</h2>
           <p>Appliquer à toutes les séries de : <strong id="quickEditExerciseName"></strong></p>
           <div class="controls">
-              <input type="text" id="quickEditWeight" placeholder="Poids (kg)" aria-label="Poids pour édition rapide">
-              <input type="text" id="quickEditReps" placeholder="Reps" aria-label="Répétitions pour édition rapide">
+              <div class="input-group-modal">
+                  <input type="text" id="quickEditWeight" placeholder="Poids (kg)" aria-label="Poids pour édition rapide">
+                  <div id="quickEditWeightError" class="error-message"></div>
+              </div>
+              <div class="input-group-modal">
+                  <input type="text" id="quickEditReps" placeholder="Reps" aria-label="Répétitions pour édition rapide">
+                  <div id="quickEditRepsError" class="error-message"></div>
+              </div>
           </div>
-          <button class="btn btn-success" id="applyQuickEditBtn" style="width: 100%; margin-top: var(--spacing-md);"><i class="fas fa-check-circle"></i> Appliquer</button>
+          <button class="btn btn-success" id="applyQuickEditBtn" style="width: 100%; margin-top: var(--spacing-md);"><i class="fas fa-check-circle" aria-hidden="true"></i> Appliquer</button>
       </div>
     </div>
 
     <nav class="bottom-navigation">
         <button class="btn btn-primary" id="bottomAddExerciseBtn" aria-label="Ajouter un exercice">
-            <i class="fas fa-plus-circle"></i>
+            <i class="fas fa-plus-circle" aria-hidden="true"></i>
             <span>Exercice</span>
         </button>
         <button class="btn btn-primary" id="bottomNotesBtn" aria-label="Notes de séance">
-            <i class="fas fa-clipboard"></i>
+            <i class="fas fa-clipboard" aria-hidden="true"></i>
             <span>Notes</span>
         </button>
-        <button class="btn btn-primary" id="bottomFinishSessionBtn" aria-label="Terminer la séance">
-            <i class="fas fa-flag-checkered"></i>
-            <span>Terminer</span>
-        </button>
         <button class="btn btn-primary" id="bottomViewHistoryBtn" aria-label="Historique">
-            <i class="fas fa-history"></i>
+            <i class="fas fa-history" aria-hidden="true"></i>
             <span>Historique</span>
         </button>
         <button class="btn btn-primary" id="bottomPlateCalculatorBtn" aria-label="Calculateurs">
-            <i class="fas fa-calculator"></i>
+            <i class="fas fa-calculator" aria-hidden="true"></i>
             <span>Calculs</span>
+        </button>
+        <button class="btn btn-primary" id="bottomFinishSessionBtn" aria-label="Terminer la séance">
+            <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+            <span>Terminer</span>
         </button>
     </nav>
 
     <script>
+    // PWA: Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+
     window.addEventListener('load', () => {
 
         const dom = {
@@ -1405,6 +1518,7 @@
             cancelNewSessionBtn: document.getElementById('cancelNewSessionBtn'),
             createNewSessionBtn: document.getElementById('createNewSessionBtn'),
             createNewSessionTypeBtn: document.getElementById('createNewSessionTypeBtn'),
+            deleteCurrentSessionBtn: document.getElementById('deleteCurrentSessionBtn'), // New DOM element
             loadOptionsModal: document.getElementById('loadOptionsModal'),
             closeLoadOptionsModal: document.getElementById('closeLoadOptionsModal'),
             loadSessionNameDisplay: document.getElementById('loadSessionName'),
@@ -1441,7 +1555,19 @@
             bottomNotesBtn: document.getElementById('bottomNotesBtn'), // New notes button
             sessionNotesSection: document.getElementById('sessionNotesSection'), // Notes section
             exportBtn: document.getElementById('exportBtn'),
-            importBtn: document.getElementById('importBtn')
+            importBtn: document.getElementById('importBtn'),
+            // New error message elements
+            newSessionNameError: document.getElementById('newSessionNameError'),
+            targetWeightError: document.getElementById('targetWeightError'),
+            barbellWeightError: document.getElementById('barbellWeightError'),
+            oneRmError: document.getElementById('oneRmError'),
+            quickEditWeightError: document.getElementById('quickEditWeightError'),
+            quickEditRepsError: document.getElementById('quickEditRepsError'),
+            progressBar: document.getElementById('progressBar'),
+            // PWA Install Prompt
+            pwaInstallPrompt: document.getElementById('pwaInstallPrompt'),
+            installPwaBtn: document.getElementById('installPwaBtn'),
+            closePwaPrompt: document.getElementById('closePwaPrompt')
         };
 
         let state = {
@@ -1460,7 +1586,8 @@
             linkingState: { active: false, fromIndex: null }, 
             quickEditIndex: null,
             isMobileView: window.matchMedia("(max-width: 768px)").matches,
-            isNotesSectionVisible: false // New state for notes visibility
+            isNotesSectionVisible: false, // New state for notes visibility
+            deferredPwaPrompt: null // For PWA deferred prompt
         };
         
         const defaultSessions = [
@@ -1480,6 +1607,8 @@
                  { name: "Tirage horizontal", rest: "1 min" }, { name: "Rowing barre buste penché pronation", rest: "1 min" }, { name: "Tirage poulie basse avec corde", rest: "1 min" }, { name: "Incliné guidé", rest: "2 min" }, { name: "Écarté couché", rest: "1 min" }, { name: "Vis à vis sur banc incliné", rest: "1 min" }, { name: "Circuit abdos", rest: "1 min" }
             ]}
         ];
+        // List of default session names for checking if a session can be deleted
+        const defaultSessionNames = defaultSessions.map(s => s.name);
         
         const rawExerciseList = `
 ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Archer row,Arnold press,Ball slam,Ball slam côté,Bar hang,Bayesian curl,Bear push up,Biceps anneaux,Biceps-triceps extension superset,Bird dog,Bobine d'Andrieu,Bobine d'Andrieu inversée,Brignole cable press down,Brignole squat,Burpees,Cable crunch,Cable extension jambe,Cable glute kickback,Cable jambe étendue,Cable kickback,Cable leg extension,Cable press down,Cable cable press down brignole,Calf raise machine,Cat camel,Chest flies,Chest flies machine,Circuit cross training,Corde à sauter,Course sur tapis,Crunch,Crunch classique,Curl barre EZ,Curl incliné,Curl marteau assis,Curl pronation,Curl pronation haltères,Curl pupitre,Curl pupitre machine,Deadbug,Deadlift trap bar,Dips,Dips pectoraux anneaux,Dips verticaux barres fixes,Donkey kick,Drapeau humain,Drop jump single leg,Dév. couché partiel prise serrée,Dév. incliné,Dév. militaire assis haltères,Développé couché,Développé couché haltères,Développé couché incliné haltères,Développé devant landmine,Développé militaire,Développé militaire barre,Développé militaire haltère,Elevations tibialis,Extension haltères en hauteur,Extension triceps corde,Extension triceps élastique,Facepull,Facepull anneaux,Fentes bulgares,Fentes marchées,Flexion haltères en hauteur,Floor press haltères,Fly au sol bras à 60°,Front Squats,Front lever,Gainage rétroversion,Glute bridge,Glute extension,Glute ham raise,Glute kickback,High lat pull in,Hip thrust une jambe,Hula hoop,Inverted row,Jump squats,Jumping jacks,L-Fly,L-fly poulie,L-fly élastique,Landmine press,Landmine squat,Landmine squeeze press,Lat prayer,Leg curl allongé,Leg curl assis,Leg curl delavier,Leg curl haltères,Leg curl machine,Leg extension,Machine arrière épaules,Machine rowing divergent,Magyc triceps,Masse de force,ForceMedecine ball wall slam,Medicine ball wall slam,Modified row,Mollets assis,Mollets assis barre,Mollets assis machine,Mollets debout,Mollets machine,Mollets à la barre guidée,Mollets à la presse à cuisse,Montée de marches,Mountain climbers,Multi-hip,Musclets,Nordic hamstring,Oiseau,Oiseau poulie/anneaux,Oiseaux poulie,Pec deck,Pendlay row,Pistol assisté,Plank,Pompes archer,Pompes complètes,Pompes pliométriques,Pompes sur anneaux,Portée de grosse pierre,Poussée de poulie diagonale haute,Poussée de rouleau dans le mur,Presse Palof,Presse inclinée,Pull over haltères,Rack push,Relevé de jambes suspendu,Retourné de pneu,Romanian Deadlift,Romanian deadlift,Rowing Yates,Rowing bûcheron,Rowing divergent,Rowing haltères,Rowing uneven,Side bend,Side bend élastique,Side plank dynamique,Single leg hipthrust landmine,Single leg stiff leg deadlift,Sissy Mathias,Sissy squat,Sissy squat anneaux,Sissy squat appui anneaux,Sissy squat machine,Skull crusher,Sled push,Sprint,Sprint en montée,Squat barre,Squat talons très relevés,Standing cable leg curl,Step up,Step up accroché,Superman,Superset Crunch/relevé de jambes,Swing kettlebell + élastique,Swings,Tibialis anterior,Tirage arraché,Tirage horizontal,Tirage vertical machine,Tirage vertical unilatéral,Tire flip,Traction assistée,Traction supination,Tractions anneaux,Tractions porte,Tractions prise neutre focus coude,Tractions pronation,Tractions pronation prise serrée,Tractions scapulaires,Tractions scapulaires uneven,Tractions supination,Triceps anneaux,Triceps au mur,Triceps poulie,Unilateral lat pull in,Upright row,Wall ball,Wall ball devant,Wall ball diagonal,Wall ball frisbee,Woodchopper,Écarté couché haltères,Écarté poulie haute,Élévation frontale,Élévations latérales,Élévations latérales couchées,Élévations latérales poulie,Élévations latérales unilatérale,Élévations mollets debout
@@ -1488,7 +1617,65 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         // ===================================================================
         // ALL FUNCTION DEFINITIONS
         // ===================================================================
+
+        // PWA Install Prompt Handling
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            state.deferredPwaPrompt = e;
+            // Only show the prompt if it hasn't been dismissed before
+            if (localStorage.getItem('pwaPromptDismissed') !== 'true') {
+                dom.pwaInstallPrompt.classList.remove('hidden');
+                setTimeout(() => dom.pwaInstallPrompt.classList.add('show'), 10);
+            }
+        });
+
+        dom.installPwaBtn.addEventListener('click', async () => {
+            if (state.deferredPwaPrompt) {
+                state.deferredPwaPrompt.prompt();
+                const { outcome } = await state.deferredPwaPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                if (outcome === 'accepted') {
+                    showNotification('Lyftiv a été ajouté à votre écran d\'accueil!', 'success', 5000);
+                }
+                state.deferredPwaPrompt = null;
+                dom.pwaInstallPrompt.classList.remove('show');
+                dom.pwaInstallPrompt.addEventListener('transitionend', () => dom.pwaInstallPrompt.classList.add('hidden'), { once: true });
+            }
+        });
+
+        dom.closePwaPrompt.addEventListener('click', () => {
+            dom.pwaInstallPrompt.classList.remove('show');
+            dom.pwaInstallPrompt.addEventListener('transitionend', () => dom.pwaInstallPrompt.classList.add('hidden'), { once: true });
+            localStorage.setItem('pwaPromptDismissed', 'true'); // Remember dismissal
+        });
         
+        /**
+         * Validates an input field for numerical correctness and applies/removes error styling.
+         * @param {HTMLElement} inputElement The input element to validate.
+         * @param {HTMLElement} errorDisplayElement The element to display error messages.
+         * @param {boolean} allowEmpty If true, empty input is considered valid.
+         * @returns {boolean} True if the input is valid, false otherwise.
+         */
+        function validateInputField(inputElement, errorDisplayElement, allowEmpty = false) {
+            const value = inputElement.value.trim();
+            if (allowEmpty && value === '') {
+                inputElement.classList.remove('is-invalid');
+                errorDisplayElement.textContent = '';
+                return true;
+            }
+            // Regex to allow integers and decimals with at most two decimal places.
+            const regex = /^\d+(\.\d{1,2})?$/;
+            if (!regex.test(value) || parseFloat(value) < 0) {
+                inputElement.classList.add('is-invalid');
+                errorDisplayElement.textContent = 'Veuillez entrer un nombre positif valide.';
+                return false;
+            } else {
+                inputElement.classList.remove('is-invalid');
+                errorDisplayElement.textContent = '';
+                return true;
+            }
+        }
+
         function handleRepInput(e) {
             const input = e.target;
             // Allow multiple values separated by '+'
@@ -1554,17 +1741,30 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         }
         
         function calculatePlates() {
-            const targetWeight = parseFloat(dom.targetWeightInput.value);
-            const barbellWeight = parseFloat(dom.barbellWeightInput.value);
-            if (isNaN(targetWeight) || isNaN(barbellWeight) || targetWeight < 0 || barbellWeight < 0 || barbellWeight > targetWeight) {
-                dom.platesResult.innerHTML = "<p>Veuillez entrer des poids valides.</p>";
+            const targetValid = validateInputField(dom.targetWeightInput, dom.targetWeightError);
+            const barbellValid = validateInputField(dom.barbellWeightInput, dom.barbellWeightError);
+
+            if (!targetValid || !barbellValid) {
+                dom.platesResult.innerHTML = `<p class="plate-result-message danger">Veuillez corriger les erreurs dans les poids.</p>`;
                 return;
             }
-            let weightPerSideTarget = (targetWeight - barbellWeight) / 2;
-            if (weightPerSideTarget < 0) {
-                 dom.platesResult.innerHTML = `<p class="plate-result-message danger">Le poids cible doit être supérieur ou égal au poids de la barre.</p>`;
-                 return;
+
+            const targetWeight = parseFloat(dom.targetWeightInput.value);
+            const barbellWeight = parseFloat(dom.barbellWeightInput.value);
+            
+            if (barbellWeight > targetWeight) {
+                dom.targetWeightInput.classList.add('is-invalid');
+                dom.targetWeightError.textContent = 'Le poids cible doit être supérieur ou égal au poids de la barre.';
+                dom.platesResult.innerHTML = `<p class="plate-result-message danger">Veuillez corriger les erreurs dans les poids.</p>`;
+                return;
+            } else {
+                dom.targetWeightInput.classList.remove('is-invalid');
+                dom.targetWeightError.textContent = '';
             }
+
+
+            let weightPerSideTarget = (targetWeight - barbellWeight) / 2;
+            
             const platesDenominations = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25].sort((a, b) => b - a);
             const combinationResult1 = getPlateCombinationOptimal(weightPerSideTarget, platesDenominations);
             const formattedPlates1 = formatPlatesWithPlus(combinationResult1.plates);
@@ -1594,11 +1794,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         }
 
         function calculateTrainingGoals() {
-            const oneRm = parseFloat(dom.oneRmInput.value);
-            if (isNaN(oneRm) || oneRm <= 0) {
+            const oneRmValid = validateInputField(dom.oneRmInput, dom.oneRmError);
+            if (!oneRmValid) {
                 dom.goalResultsContainer.innerHTML = '';
                 return;
             }
+
+            const oneRm = parseFloat(dom.oneRmInput.value);
 
             // Updated goals array with new order and Phosphor Icons
             const goals = [
@@ -1645,7 +1847,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 dom.quickEditExerciseName.textContent = state.sessions[state.currentSessionIndex].exercises[idx].name;
                 dom.quickEditModal.classList.remove('hidden');
                 dom.quickEditModal.classList.add('show');
+                // Set focus to the first input field in the quick edit modal
                 dom.quickEditWeight.focus();
+                // Clear any previous error messages
+                dom.quickEditWeight.classList.remove('is-invalid');
+                dom.quickEditWeightError.textContent = '';
+                dom.quickEditReps.classList.remove('is-invalid');
+                dom.quickEditRepsError.textContent = '';
             } else if (action === 'link-superset') {
                 const exercises = state.sessions[state.currentSessionIndex].exercises;
                 const clickedExercise = exercises[idx];
@@ -1713,7 +1921,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 handleTimerActions(timerAction, idx, rowOrCard);
             } else if (action === 'remove') {
                 const exerciseToRemove = state.sessions[state.currentSessionIndex].exercises[idx];
-                const confirmed = await customConfirm(`Supprimer "${exerciseToRemove.name}"?`);
+                const confirmed = await customConfirm(`Êtes-vous sûr de vouloir supprimer l'exercice "${exerciseToRemove.name}"?`);
                 if (confirmed) {
                     state.sessions[state.currentSessionIndex].exercises.splice(idx, 1);
                     state.lastDeletedExercise = exerciseToRemove;
@@ -1732,6 +1940,21 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         }
                     }, 7000);
                 }
+            } else if (button.classList.contains('serie-input-delete')) { // New series delete action
+                const exIndex = +button.dataset.ex;
+                const serieIndex = +button.dataset.serie;
+                const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
+                const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
+                if (weightInput) {
+                    weightInput.value = '';
+                    weightInput.classList.remove('is-invalid'); // Clear validation
+                }
+                if (repsInput) {
+                    repsInput.value = '';
+                    repsInput.classList.remove('is-invalid'); // Clear validation
+                }
+                updateAllTotals(); // Recalculate totals after clearing
+                showNotification(`Série ${serieIndex + 1} de l'exercice effacée.`, "info", 2000);
             }
         }
         
@@ -1739,6 +1962,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
              const timerDisplay = element.querySelector('.timer-display');
              const startBtn = element.querySelector('[data-timer-action="start"]');
              const stopBtn = element.querySelector('[data-timer-action="stop"]');
+             const resetBtn = element.querySelector('[data-timer-action="reset"]'); // Get reset button
              const exercise = state.sessions[state.currentSessionIndex].exercises[idx];
              const restString = exercise.rest;
              let restSeconds = parseInt(restString) * (restString.includes('min') ? 60 : 1) || 60;
@@ -1760,7 +1984,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         state.timers[idx].secondsElapsed++;
                         const remaining = state.timers[idx].duration - state.timers[idx].secondsElapsed;
                         if (remaining <= 0) {
-                            timerDisplay.textContent = "0:00";
+                            timerDisplay.textContent = formatTimerDisplay(0); // Show 0:00 when finished
                             timerDisplay.classList.remove('timer-active');
                             clearInterval(state.timers[idx].interval);
                             localStorage.removeItem(`timer-${idx}`);
@@ -1768,8 +1992,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             if(Notification.permission === "granted") {
                                 new Notification('Lyftiv - Repos Terminé !', { body: `Le temps de repos pour ${exercise.name} est terminé.`});
                             }
+                            // Reset state for buttons and display original duration
                             startBtn.classList.remove('hidden'); 
                             stopBtn.classList.add('hidden'); 
+                            timerDisplay.textContent = formatTimerDisplay(duration); // Reset to original duration
                             
                             // NEW SUPERSET LOGIC
                             const exercises = state.sessions[state.currentSessionIndex].exercises;
@@ -1795,7 +2021,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 localStorage.removeItem(`timer-${idx}`);
                 state.timers[idx] = null; 
                 timerDisplay.classList.remove('timer-active'); 
-                timerDisplay.textContent = formatTimerDisplay(duration); 
+                timerDisplay.textContent = formatTimerDisplay(duration); // Always reset to full duration
                 startBtn.classList.remove('hidden'); 
                 stopBtn.classList.add('hidden'); 
             }
@@ -1813,18 +2039,18 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (historicalSession) {
                     showLoadOptionsModal(historicalSession); 
                 } else {
-                    showNotification("Séance historique non trouvée.", "error");
+                    showNotification("La séance historique demandée n'a pas été trouvée.", "error");
                 }
             }
         }
 
         async function deleteHistoryItem(id) {
-            const confirmed = await customConfirm("Êtes-vous sûr de vouloir supprimer cette séance de l'historique ?");
+            const confirmed = await customConfirm("Êtes-vous sûr de vouloir supprimer définitivement cette séance de l'historique ?");
             if (confirmed) {
                 let history = getHistory().filter(session => session.id != id);
                 localStorage.setItem('workoutHistory', JSON.stringify(history));
                 displayHistory(); 
-                showNotification("Séance supprimée de l'historique.", "info");
+                showNotification("Séance supprimée de l'historique avec succès.", "info");
             }
         }
         
@@ -1861,18 +2087,20 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 const table = document.createElement("table");
                 table.id = "workoutTable";
                 table.className = "desktop-table"; // Add class for desktop styling
+                table.setAttribute('role', 'table');
+                table.setAttribute('aria-label', 'Liste des exercices de la séance');
 
                 const thead = document.createElement("thead");
                 thead.innerHTML = `
-                    <tr>
-                        <th class="actions-col">Actions</th>
-                        <th>Exercice</th>
-                        <th colspan="5">Séries</th>
-                        <th>Tonnage</th>
-                        <th>1RM</th>
-                        <th>Repos</th>
-                        <th>Minuteur</th>
-                        <th></th> 
+                    <tr role="row">
+                        <th class="actions-col" scope="col">Actions</th>
+                        <th scope="col">Exercice</th>
+                        <th colspan="5" scope="colgroup">Séries</th>
+                        <th scope="col">Tonnage</th>
+                        <th scope="col">1RM</th>
+                        <th scope="col">Repos</th>
+                        <th scope="col">Minuteur</th>
+                        <th scope="col"></th> 
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -1886,6 +2114,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     const tr = document.createElement("tr");
                     tr.className = "exercise-row";
                     tr.dataset.exerciseIndex = idx;
+                    tr.setAttribute('role', 'row');
             
                     // Superset group visual indication
                     if (ex.supersetGroup) {
@@ -1895,39 +2124,40 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     let seriesContentHtml = "";
                     for(let i = 0; i < 5; i++) {
                         const currentSeries = ex.series?.[i] || {};
-                        seriesContentHtml += `<td><div class="serie-input">
-                            <input type="text" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" aria-label="Poids pour l'exercice ${idx+1} série ${i+1}" value="${currentSeries.weight || ''}">
-                            <input type="text" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" aria-label="Reps pour l'exercice ${idx+1} série ${i+1}" value="${currentSeries.reps || ''}">
+                        seriesContentHtml += `<td role="cell"><div class="serie-input">
+                            <input type="text" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" aria-label="Poids pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.weight || ''}" tabindex="${(idx * 10) + (i * 2) + 1}">
+                            <input type="text" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" aria-label="Reps pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.reps || ''}" tabindex="${(idx * 10) + (i * 2) + 2}">
+                            <button class="serie-input-delete" data-ex="${idx}" data-serie="${i}" aria-label="Effacer cette série">&times;</button>
                         </div></td>`;
                     }
                     
                     tr.innerHTML = `
-                        <td class="actions-col" data-label="Actions">
-                            <button class="quick-edit-btn tooltip" data-action="quick-edit" aria-label="Édition rapide">
-                                <i class="fas fa-pencil-alt"></i>
+                        <td class="actions-col" data-label="Actions" role="cell">
+                            <button class="quick-edit-btn tooltip" data-action="quick-edit" aria-label="Édition rapide pour ${ex.name}">
+                                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                                 <span class="tooltiptext">Édition rapide</span>
                             </button>
-                            <button class="link-btn tooltip" data-action="link-superset" aria-label="Lier pour superset">
-                                <i class="fas fa-link"></i>
+                            <button class="link-btn tooltip" data-action="link-superset" aria-label="Lier ${ex.name} pour superset">
+                                <i class="fas fa-link" aria-hidden="true"></i>
                                 <span class="tooltiptext">Lier Superset</span>
                             </button>
                         </td>
-                        <td class="exercise-col" data-label="Exercice" title="${ex.name}">
+                        <td class="exercise-col" data-label="Exercice" title="${ex.name}" role="cell">
                             <span>${ex.name}</span>
                         </td>
                         ${seriesContentHtml}
-                        <td data-label="Tonnage" id="tonnage-${idx}">0</td>
-                        <td data-label="1RM" id="onerm-${idx}">0</td>
-                        <td data-label="Repos"><strong>${ex.rest}</strong></td>
-                        <td data-label="Minuteur">
+                        <td data-label="Tonnage" id="tonnage-${idx}" role="cell">0</td>
+                        <td data-label="1RM" id="onerm-${idx}" role="cell">0</td>
+                        <td data-label="Repos" role="cell"><strong>${ex.rest}</strong></td>
+                        <td data-label="Minuteur" role="cell">
                             <div class="timer-container">
-                                <div class="timer-display" id="timer-${idx}">0:00</div>
-                                <button class="timer-btn" data-timer-action="start" aria-label="Démarrer le minuteur"><i class="fas fa-play"></i></button>
-                                <button class="timer-btn hidden" data-timer-action="stop" aria-label="Arrêter le minuteur"><i class="fas fa-stop"></i></button>
-                                <button class="timer-btn" data-timer-action="reset" aria-label="Réinitialiser le minuteur"><i class="fas fa-redo"></i></button>
+                                <div class="timer-display" id="timer-${idx}" aria-live="polite">0:00</div>
+                                <button class="timer-btn" data-timer-action="start" aria-label="Démarrer le minuteur pour ${ex.name}"><i class="fas fa-play" aria-hidden="true"></i></button>
+                                <button class="timer-btn hidden" data-timer-action="stop" aria-label="Arrêter le minuteur pour ${ex.name}"><i class="fas fa-stop" aria-hidden="true"></i></button>
+                                <button class="timer-btn" data-timer-action="reset" aria-label="Réinitialiser le minuteur pour ${ex.name}"><i class="fas fa-redo" aria-hidden="true"></i></button>
                             </div>
                         </td>
-                        <td><button class="btn-ghost" data-action="remove" aria-label="Supprimer l'exercice"><i class="fas fa-trash-alt"></i></button></td>`;
+                        <td role="cell"><button class="btn-ghost" data-action="remove" aria-label="Supprimer l'exercice ${ex.name}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button></td>`;
                     tbody.appendChild(tr);
                     
                     // Apply active class to button for persistent state
@@ -1940,12 +2170,15 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 // Mobile view: render as cards
                 const mobileCardsContainer = document.createElement("div");
                 mobileCardsContainer.className = "mobile-cards";
+                mobileCardsContainer.setAttribute('role', 'list');
                 dom.exerciseListContainer.appendChild(mobileCardsContainer);
 
                 exercises.forEach((ex, idx) => {
                     const card = document.createElement("div");
                     card.className = "exercise-card";
                     card.dataset.exerciseIndex = idx;
+                    card.setAttribute('role', 'listitem');
+                    card.setAttribute('aria-label', `Exercice: ${ex.name}`);
 
                     // Superset group visual indication
                     if (ex.supersetGroup) {
@@ -1959,8 +2192,9 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             <div class="series-row">
                                 <span>Série ${i + 1}:</span>
                                 <div class="series-input-group">
-                                    <input type="text" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" aria-label="Poids pour l'exercice ${idx+1} série ${i+1}" value="${currentSeries.weight || ''}">
-                                    <input type="text" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" aria-label="Reps pour l'exercice ${idx+1} série ${i+1}" value="${currentSeries.reps || ''}">
+                                    <input type="text" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" aria-label="Poids pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.weight || ''}" tabindex="${(idx * 10) + (i * 2) + 1}">
+                                    <input type="text" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" aria-label="Reps pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.reps || ''}" tabindex="${(idx * 10) + (i * 2) + 2}">
+                                    <button class="serie-input-delete" data-ex="${idx}" data-serie="${i}" aria-label="Effacer série ${i+1} pour ${ex.name}">&times;</button>
                                 </div>
                             </div>
                         `;
@@ -1969,7 +2203,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     card.innerHTML = `
                         <h4>
                             ${ex.name}
-                            <button class="btn-ghost" data-action="remove" aria-label="Supprimer l'exercice"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn-ghost" data-action="remove" aria-label="Supprimer l'exercice ${ex.name}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
                         </h4>
                         <div class="series-group">
                             ${seriesHtml}
@@ -1989,13 +2223,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             </div>
                         </div>
                         <div class="card-actions">
-                            <button class="btn btn-info" data-action="quick-edit" aria-label="Édition rapide"><i class="fas fa-pencil-alt"></i> Éditer</button>
-                            <button class="btn btn-secondary link-btn" data-action="link-superset" aria-label="Lier pour superset"><i class="fas fa-link"></i> Superset</button>
+                            <button class="btn btn-info" data-action="quick-edit" aria-label="Édition rapide pour ${ex.name}"><i class="fas fa-pencil-alt" aria-hidden="true"></i> Éditer</button>
+                            <button class="btn btn-secondary link-btn" data-action="link-superset" aria-label="Lier ${ex.name} pour superset"><i class="fas fa-link" aria-hidden="true"></i> Superset</button>
                             <div class="timer-container">
-                                <div class="timer-display" id="timer-${idx}">0:00</div>
-                                <button class="timer-btn" data-timer-action="start" aria-label="Démarrer le minuteur"><i class="fas fa-play"></i></button>
-                                <button class="timer-btn hidden" data-timer-action="stop" aria-label="Arrêter le minuteur"><i class="fas fa-stop"></i></button>
-                                <button class="timer-btn" data-timer-action="reset" aria-label="Réinitialiser le minuteur"><i class="fas fa-redo"></i></button>
+                                <div class="timer-display" id="timer-${idx}" aria-live="polite">0:00</div>
+                                <button class="timer-btn" data-timer-action="start" aria-label="Démarrer le minuteur pour ${ex.name}"><i class="fas fa-play" aria-hidden="true"></i></button>
+                                <button class="timer-btn hidden" data-timer-action="stop" aria-label="Arrêter le minuteur pour ${ex.name}"><i class="fas fa-stop" aria-hidden="true"></i></button>
+                                <button class="timer-btn" data-timer-action="reset" aria-label="Réinitialiser le minuteur pour ${ex.name}"><i class="fas fa-redo" aria-hidden="true"></i></button>
                             </div>
                         </div>
                     `;
@@ -2011,6 +2245,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
             loadCurrentState();
             updateAllTotals();
+            updateDeleteSessionButtonState(); // Update state of delete session button
         }
 
         function calculate1RM(weight, reps) {
@@ -2031,6 +2266,33 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
             if (validFormulas.length === 0) return 0;
             return validFormulas.reduce((sum, val) => sum + val, 0) / validFormulas.length;
+        }
+
+        /**
+         * Animates a numerical change from a start value to an end value in a DOM element.
+         * @param {HTMLElement} element The DOM element whose text content will be animated.
+         * @param {number} startValue The starting numerical value.
+         * @param {number} endValue The target numerical value.
+         * @param {number} duration The duration of the animation in milliseconds.
+         * @param {string} suffix Optional suffix to append (e.g., ' kg', '%').
+         */
+        function animateNumberChange(element, startValue, endValue, duration, suffix = '') {
+            const range = endValue - startValue;
+            const startTime = performance.now();
+
+            function update() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1); // Clamp between 0 and 1
+                const currentValue = startValue + range * progress;
+                element.textContent = `${currentValue.toFixed(0)}${suffix}`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = `${endValue.toFixed(0)}${suffix}`; // Ensure final value is exact
+                }
+            }
+            requestAnimationFrame(update);
         }
 
         function updateAllTotals() {
@@ -2069,6 +2331,23 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         }
                     }
 
+                    // Apply inline validation for each series input
+                    if (weightInput) {
+                        if (!isValidAndCompleteNumber(weightInput.value) && weightInput.value.trim() !== '') {
+                             weightInput.classList.add('is-invalid');
+                        } else {
+                            weightInput.classList.remove('is-invalid');
+                        }
+                    }
+                    if (repsInput) {
+                         if (!isValidAndCompleteNumber(repsInput.value) && repsInput.value.trim() !== '') {
+                            repsInput.classList.add('is-invalid');
+                        } else {
+                            repsInput.classList.remove('is-invalid');
+                        }
+                    }
+
+
                     if (currentSeriesValid) {
                         repsInput.classList.add('completed');
                         weightInput.classList.add('completed');
@@ -2086,11 +2365,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (oneRMs.length > 0) {
                     let totalWeighted1RM = 0;
                     let totalWeightSum = 0;
+                    // Apply inverse weighting based on recency: most recent series has the highest weight.
+                    // The last element (most recent) gets full weight, older ones get reduced weight.
                     for (let j = 0; j < oneRMs.length; j++) {
-                        // More recent series get higher weight.
-                        // Example weighting: last series = 1.0, second last = 0.9, etc.
-                        // You can adjust the weighting factor (e.g., 0.1 for a smaller drop)
-                        const weightFactor = 1 - (oneRMs.length - 1 - j) * 0.1; // Decreasing weight for older series
+                        const positionFromEnd = oneRMs.length - 1 - j; // 0 for last, 1 for second last, etc.
+                        const weightFactor = 1 / (1 + positionFromEnd * 0.2); // Adjust 0.2 for decay rate
                         totalWeighted1RM += oneRMs[j] * weightFactor;
                         totalWeightSum += weightFactor;
                     }
@@ -2109,12 +2388,46 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 }
                 totalTonnage += exerciseTonnage;
             });
-            dom.totalTonnageEl.textContent = `${totalTonnage.toFixed(0)} kg`;
-            const previous = +dom.previousWeekInput.value || 0;
-            const delta = totalTonnage - previous;
-            const deltaSign = delta > 0 ? '+' : '';
-            dom.deltaEl.textContent = `${deltaSign}${delta.toFixed(0)} kg`;
-            dom.deltaEl.style.color = delta > 0 ? 'var(--success-color)' : delta < 0 ? 'var(--danger-color)' : 'inherit';
+
+            // Animate total tonnage and delta
+            const currentTonnage = parseFloat(dom.totalTonnageEl.textContent.replace(' kg', '')) || 0;
+            const newTonnage = totalTonnage;
+            animateNumberChange(dom.totalTonnageEl, currentTonnage, newTonnage, 500, ' kg');
+
+            dom.progressBar.setAttribute('aria-valuenow', (totalPossibleSeries > 0 ? (completedSeriesOverall / totalPossibleSeries) * 100 : 0).toFixed(0));
+
+            const previous = parseFloat(dom.previousWeekInput.value) || 0;
+            const delta = newTonnage - previous;
+            const currentDelta = parseFloat(dom.deltaEl.textContent.replace(' kg', '').replace('+', '')) || 0;
+            
+            // For delta, animate the absolute value then apply sign and color
+            const animateDelta = (targetDelta) => {
+                const deltaEl = dom.deltaEl;
+                const startDelta = parseFloat(deltaEl.textContent.replace(' kg', '').replace('+', '')) || 0;
+                const deltaDuration = 500;
+                const deltaStartTime = performance.now();
+
+                function updateDelta() {
+                    const elapsed = performance.now() - deltaStartTime;
+                    const progress = Math.min(elapsed / deltaDuration, 1);
+                    const currentValue = startDelta + (targetDelta - startDelta) * progress;
+                    const displayValue = Math.round(currentValue); // Round to integer for display
+
+                    const displaySign = displayValue > 0 ? '+' : '';
+                    deltaEl.textContent = `${displaySign}${displayValue} kg`;
+                    deltaEl.style.color = displayValue > 0 ? 'var(--success-color)' : displayValue < 0 ? 'var(--danger-color)' : 'inherit';
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateDelta);
+                    } else {
+                         deltaEl.textContent = `${delta > 0 ? '+' : ''}${delta.toFixed(0)} kg`;
+                         deltaEl.style.color = delta > 0 ? 'var(--success-color)' : delta < 0 ? 'var(--danger-color)' : 'inherit';
+                    }
+                }
+                requestAnimationFrame(updateDelta);
+            }
+            animateDelta(delta); // Call with the final delta value
+
             dom.progressFill.style.width = `${totalPossibleSeries > 0 ? (completedSeriesOverall / totalPossibleSeries) * 100 : 0}%`;
             saveCurrentState();
         }
@@ -2187,12 +2500,16 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             return new Promise(resolve => {
                 const modal = document.createElement('div');
                 modal.className = 'modal-overlay';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-labelledby', 'confirmModalTitle');
                 modal.innerHTML = `
                     <div class="modal-content" style="text-align: center;">
+                        <h2 id="confirmModalTitle" style="font-size: 1.5rem; margin-bottom: var(--spacing-md);">Confirmation</h2>
                         <p style="margin-bottom: var(--spacing-lg);">${message}</p>
                         <div style="display: flex; justify-content: center; gap: var(--spacing-md);">
-                            <button class="btn btn-outline confirm-no"><i class="fas fa-times"></i> Non</button>
-                            <button class="btn btn-success confirm-yes"><i class="fas fa-check"></i> Oui</button>
+                            <button class="btn btn-outline confirm-no"><i class="fas fa-times" aria-hidden="true"></i> Non</button>
+                            <button class="btn btn-success confirm-yes"><i class="fas fa-check" aria-hidden="true"></i> Oui</button>
                         </div>
                     </div>
                 `;
@@ -2200,20 +2517,28 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
                 const confirmYesBtn = modal.querySelector('.confirm-yes');
                 const confirmNoBtn = modal.querySelector('.confirm-no');
+                // Store the element that triggered the modal for focus restoration
+                const triggeringElement = document.activeElement;
 
                 const cleanup = () => {
                     modal.classList.remove('show');
                     const fallbackTimeout = setTimeout(() => {
                         if (document.body.contains(modal)) {
                             modal.remove();
+                            if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                                triggeringElement.focus();
+                            }
                         }
-                    }, 500);
+                    }, 500); // Give time for transition
                     modal.addEventListener('transitionend', () => {
                         clearTimeout(fallbackTimeout);
                         if (document.body.contains(modal)) {
                            modal.remove();
+                           if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                                triggeringElement.focus();
+                            }
                         }
-                    }, { once: true });
+                    }, { once : true });
                 };
 
                 confirmYesBtn.onclick = () => { 
@@ -2227,7 +2552,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 };
                 
                 // Add 'show' class to trigger modal animation
-                setTimeout(() => modal.classList.add('show'), 10);
+                setTimeout(() => {
+                    modal.classList.add('show');
+                    // Focus the first interactive element for accessibility
+                    confirmNoBtn.focus(); // Focus "No" by default for destructive actions, or "Yes" if less destructive
+                }, 10);
             });
         }
         
@@ -2286,7 +2615,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         function finishAndSaveSession() {
             const totalTonnage = +dom.totalTonnageEl.textContent.replace(' kg', '');
             if (totalTonnage === 0) {
-                showNotification("Aucune donnée à sauvegarder. Séance non enregistrée.", "info");
+                showNotification("Aucune donnée à sauvegarder. La séance n'a pas été enregistrée car le tonnage total est de 0 kg.", "info");
                 return; 
             }
             pauseTotalWorkoutTimer(); 
@@ -2333,7 +2662,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             history = history.filter(session => !(session.isAutoSave && session.id === state.workoutStartTime));
             history.push(workoutData);
             localStorage.setItem('workoutHistory', JSON.stringify(history));
-            showNotification("Séance sauvegardée dans l'historique !", "success");
+            showNotification("Séance sauvegardée dans l'historique avec succès !", "success");
             
             Object.values(state.timers).forEach(timer => {
                 if (timer && timer.interval) clearInterval(timer.interval);
@@ -2357,9 +2686,17 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         
         function displayHistory() {
             dom.historyList.innerHTML = '';
-            getHistory().sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(session => {
+            const sortedHistory = getHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (sortedHistory.length === 0) {
+                dom.historyList.innerHTML = '<p style="text-align: center; color: var(--sub-header-color);">Aucune séance enregistrée dans l\'historique.</p>';
+                return;
+            }
+
+            sortedHistory.forEach(session => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
+                item.setAttribute('role', 'listitem');
                 item.innerHTML = `
                     <div>
                         ${new Date(session.date).toLocaleDateString('fr-FR')} - 
@@ -2367,24 +2704,32 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         ${session.duration ? ` - ⏱️ ${session.duration}` : ''}
                     </div>
                     <div style="display: flex; gap: var(--spacing-xs);">
-                        <button class="btn btn-ghost" data-history-action="details" data-history-id="${session.id}" title="Voir les détails"><i class="fas fa-info-circle"></i></button>
-                        <button class="btn btn-ghost" data-history-action="load" data-history-id="${session.id}" title="Utiliser cette séance"><i class="fas fa-arrow-alt-circle-down"></i></button>
-                        <button class="btn-ghost" data-history-action="delete" data-history-id="${session.id}" title="Supprimer cette séance"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn btn-ghost" data-history-action="details" data-history-id="${session.id}" title="Voir les détails de ${session.sessionName}"><i class="fas fa-info-circle" aria-hidden="true"></i></button>
+                        <button class="btn btn-ghost" data-history-action="load" data-history-id="${session.id}" title="Utiliser cette séance comme modèle"><i class="fas fa-arrow-alt-circle-down" aria-hidden="true"></i></button>
+                        <button class="btn-ghost" data-history-action="delete" data-history-id="${session.id}" title="Supprimer ${session.sessionName} de l'historique"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
                     </div>
-                    <div class="history-details" id="details-${session.id}"></div>`;
+                    <div class="history-details" id="details-${session.id}" role="region" aria-live="polite"></div>`;
                 dom.historyList.appendChild(item);
             });
         }
         
         function showHistoryDetails(id) {
             const detailsDiv = document.getElementById(`details-${id}`);
-            detailsDiv.classList.toggle('visible');
+            const button = detailsDiv.previousElementSibling.querySelector('[data-history-action="details"]');
+            
             if (detailsDiv.classList.contains('visible')) {
+                detailsDiv.classList.remove('visible');
+                detailsDiv.innerHTML = '';
+                button.setAttribute('aria-expanded', 'false');
+            } else {
                 const session = getHistory().find(s => s.id == id);
                 if (session) {
                     let detailsHtml = `<h4>Détails de la Séance :</h4>
-                                       <p><strong>Tonnage Total :</strong> ${session.totalTonnage} kg</p>
-                                       <ul>`;
+                                       <p><strong>Tonnage Total :</strong> ${session.totalTonnage} kg</p>`;
+                    if (session.notes) {
+                        detailsHtml += `<p><strong>Notes :</strong> ${session.notes}</p>`;
+                    }
+                    detailsHtml += `<ul>`;
                     session.exercises.forEach(ex => {
                         let exerciseOneRMs = []; // Store 1RMs for all valid series in this exercise
                         if (ex.series && ex.series.length > 0) {
@@ -2407,7 +2752,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             let totalWeighted1RM = 0;
                             let totalWeightSum = 0;
                             for (let j = 0; j < exerciseOneRMs.length; j++) {
-                                const weightFactor = 1 - (exerciseOneRMs.length - 1 - j) * 0.1;
+                                const positionFromEnd = exerciseOneRMs.length - 1 - j;
+                                const weightFactor = 1 / (1 + positionFromEnd * 0.2);
                                 totalWeighted1RM += exerciseOneRMs[j] * weightFactor;
                                 totalWeightSum += weightFactor;
                             }
@@ -2417,10 +2763,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     });
                     detailsHtml += '</ul>';
                     detailsDiv.innerHTML = detailsHtml;
+                    detailsDiv.classList.add('visible');
+                    button.setAttribute('aria-expanded', 'true');
                 }
-            } else {
-                detailsDiv.innerHTML = '';
-            }
+            } 
         }
         
         // ================== NEW ADVANCED CSV EXPORT/IMPORT LOGIC ==================
@@ -2444,7 +2790,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         function exportCSV() {
             const history = getHistory();
             if (history.length === 0) {
-                showNotification("Aucune donnée historique à exporter.", "info");
+                showNotification("Aucune donnée historique à exporter. L'exportation CSV est vide.", "info");
                 return;
             }
 
@@ -2768,6 +3114,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                  state.workoutStartTime = new Date().toISOString();
                  state.pausedTime = 0; 
             } else if (state.isWorkoutTimerPaused) {
+                // When resuming from a paused state, adjust the workoutStartTime
+                // so that the current pausedTime is correctly factored in.
                 state.workoutStartTime = new Date(Date.now() - state.pausedTime * 1000).toISOString();
             }
             
@@ -2777,7 +3125,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             updateTotalTimeDisplay(); 
             dom.timerPlayPauseIcon.textContent = '⏸️';
             dom.timerPlayPauseText.textContent = 'Pause';
-            saveCurrentState();
+            saveCurrentState(); // Save state after starting timer
         }
 
         function pauseTotalWorkoutTimer() {
@@ -2786,6 +3134,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 state.totalWorkoutTimeInterval = null;
             }
             if (state.workoutStartTime) {
+                // Calculate total elapsed time up to the point of pausing
                 state.pausedTime = (Date.now() - new Date(state.workoutStartTime).getTime()) / 1000;
             }
             state.isWorkoutTimerPaused = true;
@@ -2793,7 +3142,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.timerPlayPauseIcon.textContent = '▶️';
             dom.timerPlayPauseText.textContent = 'Play';
             updateTotalTimeDisplay(); 
-            saveCurrentState();
+            saveCurrentState(); // Save state after pausing timer
         }
 
         function handleVisibilityChange() {
@@ -2806,12 +3155,22 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             } else {
                 // User is returning to the page
                 const inProgress = JSON.parse(localStorage.getItem('inProgressWorkout'));
-                if (inProgress && inProgress.workoutStartTime && !inProgress.isWorkoutTimerPaused) {
-                    // Resume timer from where it was left off
-                    state.workoutStartTime = new Date(Date.now() - inProgress.pausedTime * 1000).toISOString(); // Adjust start time
-                    state.isWorkoutTimerPaused = false;
+                if (inProgress && inProgress.workoutStartTime) { // Check if a workout was in progress
+                    state.workoutStartTime = inProgress.workoutStartTime;
+                    state.isWorkoutTimerPaused = inProgress.isWorkoutTimerPaused;
                     state.pausedTime = inProgress.pausedTime;
-                    startTotalWorkoutTimer();
+
+                    if (!state.isWorkoutTimerPaused) {
+                        // If it was active, account for time passed while hidden
+                        const elapsedWhileHidden = (Date.now() - (inProgress.saveTimestamp || new Date(state.workoutStartTime).getTime())) / 1000;
+                        state.pausedTime = (inProgress.pausedTime || 0) + elapsedWhileHidden;
+                        startTotalWorkoutTimer();
+                    } else {
+                        // If it was paused, just update display to last known paused time
+                        dom.totalTimeEl.textContent = formatTime(state.pausedTime);
+                        dom.timerPlayPauseIcon.textContent = '▶️';
+                        dom.timerPlayPauseText.textContent = 'Play';
+                    }
                 }
             }
         }
@@ -2819,11 +3178,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         function applyTheme(theme) {
             if (theme === 'dark') {
                 dom.body.classList.add('dark-mode');
-                dom.themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                dom.themeToggleBtn.innerHTML = '<i class="fas fa-sun" aria-hidden="true"></i>';
                 dom.themeToggleBtn.setAttribute('title', 'Passer au thème clair');
             } else {
                 dom.body.classList.remove('dark-mode');
-                dom.themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                dom.themeToggleBtn.innerHTML = '<i class="fas fa-moon" aria-hidden="true"></i>';
                 dom.themeToggleBtn.setAttribute('title', 'Passer au thème sombre');
             }
         }
@@ -2843,26 +3202,38 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.newSessionModal.classList.add('show'); /* Add show class for animation */
             dom.newSessionNameInput.value = ''; 
             dom.newSessionNameInput.focus(); 
+            dom.newSessionNameInput.classList.remove('is-invalid'); // Clear previous validation
+            dom.newSessionNameError.textContent = '';
         }
 
         function hideNewSessionModal() {
             dom.newSessionModal.classList.remove('show');
+            // Store the element that triggered the modal for focus restoration
+            const triggeringElement = document.activeElement;
             dom.newSessionModal.addEventListener('transitionend', () => {
                 dom.newSessionModal.classList.add('hidden');
+                if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                    triggeringElement.focus();
+                }
             }, { once: true });
         }
 
         async function createNewSession() {
             const newName = dom.newSessionNameInput.value.trim();
             if (!newName) {
-                showNotification("Veuillez entrer un nom pour la nouvelle séance.", "error");
+                dom.newSessionNameInput.classList.add('is-invalid');
+                dom.newSessionNameError.textContent = 'Le nom de la séance ne peut pas être vide.';
                 return;
             }
             const isDuplicate = state.sessions.some(s => s.name.toLowerCase() === newName.toLowerCase());
             if (isDuplicate) {
-                showNotification(`Une séance nommée "${newName}" existe déjà.`, "error");
+                dom.newSessionNameInput.classList.add('is-invalid');
+                dom.newSessionNameError.textContent = `Une séance nommée "${newName}" existe déjà. Veuillez choisir un nom différent.`;
                 return;
             }
+            dom.newSessionNameInput.classList.remove('is-invalid');
+            dom.newSessionNameError.textContent = '';
+
             const newSession = { name: newName, exercises: [] };
             state.sessions.push(newSession);
             updateSessionSelectOptions(); 
@@ -2881,8 +3252,47 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             hideNewSessionModal();
         }
 
+        function updateDeleteSessionButtonState() {
+            const currentSession = state.sessions[state.currentSessionIndex];
+            if (currentSession && !defaultSessionNames.includes(currentSession.name)) {
+                dom.deleteCurrentSessionBtn.removeAttribute('disabled');
+                dom.deleteCurrentSessionBtn.classList.remove('btn-outline'); // Re-enable styling
+                dom.deleteCurrentSessionBtn.classList.add('btn-danger'); // Add danger styling
+            } else {
+                dom.deleteCurrentSessionBtn.setAttribute('disabled', 'true');
+                dom.deleteCurrentSessionBtn.classList.remove('btn-danger'); // Remove danger styling
+                dom.deleteCurrentSessionBtn.classList.add('btn-outline'); // Grey out
+            }
+        }
+
+        async function deleteCurrentSession() {
+            const currentSession = state.sessions[state.currentSessionIndex];
+            if (!currentSession || defaultSessionNames.includes(currentSession.name)) {
+                showNotification("Vous ne pouvez pas supprimer une séance par défaut.", "error");
+                return;
+            }
+            const confirmed = await customConfirm(`Êtes-vous sûr de vouloir supprimer définitivement la séance "${currentSession.name}"? Cette action est irréversible.`);
+            if (confirmed) {
+                state.sessions.splice(state.currentSessionIndex, 1);
+                state.currentSessionIndex = 0; // Switch to the first session after deletion
+                updateSessionSelectOptions();
+                dom.sessionSelect.value = state.currentSessionIndex;
+                localStorage.removeItem('inProgressWorkout'); // Clear current workout progress
+                state.workoutStartTime = null;
+                state.isWorkoutTimerPaused = false;
+                state.pausedTime = 0;
+                dom.totalTimeEl.textContent = "00:00:00";
+                dom.timerPlayPauseIcon.textContent = '▶️';
+                dom.timerPlayPauseText.textContent = 'Play';
+                createTable();
+                updateAllTotals();
+                showNotification(`Séance "${currentSession.name}" supprimée avec succès.`, "info");
+            }
+        }
+
+
         async function openNewSessionLogic(historicalSession) {
-            const confirmed = await customConfirm("Ouvrir cette séance ? La séance en cours sera remplacée.");
+            const confirmed = await customConfirm("Ouvrir cette séance ? La séance en cours sera remplacée et toutes les données non sauvegardées seront perdues.");
             if (!confirmed) return;
             Object.values(state.timers).forEach(timer => {
                 if (timer && timer.interval) clearInterval(timer.interval);
@@ -2905,6 +3315,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.sessionNotesInput.value = ""; 
             let sessionIndexToLoad = state.sessions.findIndex(s => s.name === historicalSession.sessionName);
             if (sessionIndexToLoad === -1) {
+                // If the historical session's name doesn't exist in current templates, create a new one
                 const newTemplateExercises = historicalSession.exercises.map(ex => ({
                     name: ex.name,
                     rest: ex.rest || "1 min",
@@ -2915,6 +3326,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 sessionIndexToLoad = state.sessions.length - 1;
                 updateSessionSelectOptions(); 
             } else {
+                // If template exists, just load exercises into it
                 state.sessions[sessionIndexToLoad].exercises = historicalSession.exercises.map(ex => ({
                     name: ex.name,
                     rest: ex.rest || "1 min",
@@ -2927,15 +3339,21 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.previousWeekInput.value = historicalSession.totalTonnage; 
             dom.sessionNotesInput.value = historicalSession.notes || ""; 
             updateAllTotals(); 
-            showNotification(`Séance "${historicalSession.sessionName}" ouverte.`, "success", 3000);
+            showNotification(`Séance "${historicalSession.sessionName}" ouverte et chargée avec succès.`, "success", 3000);
             dom.loadOptionsModal.classList.remove('show'); // Trigger fade out
-            dom.loadOptionsModal.addEventListener('transitionend', () => dom.loadOptionsModal.classList.add('hidden'), { once: true });
+            const triggeringElement = document.activeElement; // Save triggering element for focus restore
+            dom.loadOptionsModal.addEventListener('transitionend', () => {
+                dom.loadOptionsModal.classList.add('hidden');
+                if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                    triggeringElement.focus();
+                }
+            }, { once: true });
             dom.historyModal.classList.remove('show'); // Trigger fade out
             dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once: true });
         }
 
         async function appendToCurrentSessionLogic(historicalSession) {
-            const confirmed = await customConfirm("Ajouter/mettre à jour les exercices de cette séance à la séance en cours ?");
+            const confirmed = await customConfirm("Ajouter/mettre à jour les exercices de cette séance à la séance en cours ? Cela écrasera les séries existantes pour les exercices ayant le même nom.");
             if (!confirmed) return;
             const currentSession = state.sessions[state.currentSessionIndex];
             if (!currentSession.exercises) {
@@ -2959,7 +3377,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.sessionNotesInput.value = historicalSession.notes || ""; 
             showNotification(`${exercisesAdded} exercices ajoutés et ${exercisesUpdated} mis à jour dans la séance en cours.`, "success", 5000);
             dom.loadOptionsModal.classList.remove('show'); // Trigger fade out
-            dom.loadOptionsModal.addEventListener('transitionend', () => dom.loadOptionsModal.classList.add('hidden'), { once: true });
+            const triggeringElement = document.activeElement; // Save triggering element for focus restore
+            dom.loadOptionsModal.addEventListener('transitionend', () => {
+                dom.loadOptionsModal.classList.add('hidden');
+                if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                    triggeringElement.focus();
+                }
+            }, { once: true });
             dom.historyModal.classList.remove('show'); // Trigger fade out
             dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once: true });
         }
@@ -2969,13 +3393,19 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.loadSessionNameDisplay.textContent = session.sessionName;
             dom.loadOptionsModal.classList.remove('hidden');
             dom.loadOptionsModal.classList.add('show'); /* Add show class for animation */
+            const firstButton = dom.loadOptionsModal.querySelector('button');
+            if (firstButton) firstButton.focus();
         }
 
         function hideLoadOptionsModal() {
             dom.loadOptionsModal.classList.remove('show');
+            const triggeringElement = document.activeElement; // Save triggering element for focus restore
             dom.loadOptionsModal.addEventListener('transitionend', () => {
                 dom.loadOptionsModal.classList.add('hidden');
                 state.sessionToLoad = null; 
+                if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                    triggeringElement.focus();
+                }
             }, { once: true });
         }
 
@@ -2995,9 +3425,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 exercise.toLowerCase().includes(query)
             ).slice(0, 10); 
             if (filteredSuggestions.length > 0) {
-                filteredSuggestions.forEach(suggestion => {
+                filteredSuggestions.forEach((suggestion, index) => {
                     const div = document.createElement('div');
                     div.textContent = suggestion;
+                    div.setAttribute('role', 'option');
+                    div.id = `autocomplete-option-${index}`;
                     div.addEventListener('click', () => {
                         input.value = suggestion;
                         dom.autocompleteSuggestions.classList.remove('show');
@@ -3010,11 +3442,12 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 });
                 dom.autocompleteSuggestions.classList.remove('hidden');
                 dom.autocompleteSuggestions.classList.add('show');
+                // Set aria-activedescendant for accessibility if needed (more complex for full implementation)
             } else {
                 dom.autocompleteSuggestions.classList.remove('show');
                 dom.autocompleteSuggestions.addEventListener('transitionend', () => {
                     dom.autocompleteSuggestions.classList.add('hidden');
-                }, { once: true });
+                }, { once : true });
             }
         }
 
@@ -3023,7 +3456,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 dom.autocompleteSuggestions.classList.remove('show');
                 dom.autocompleteSuggestions.addEventListener('transitionend', () => {
                     dom.autocompleteSuggestions.classList.add('hidden');
-                }, { once: true });
+                }, { once : true });
             }
         }
 
@@ -3045,17 +3478,27 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 console.warn("Could not play sound: AudioContext not supported or blocked.", error);
             }
         }
+
+        // Helper to check if an input value is a valid, complete number (not a partial entry like "1." or empty)
+        function isValidAndCompleteNumber(value) {
+            if (value === null || value.trim() === '') return false;
+            // Use a regex to allow integers and decimals with at most two decimal places.
+            const regex = /^\d+(\.\d{1,2})?$/;
+            return regex.test(value.trim()) && parseFloat(value) >= 0;
+        }
         
         function setupEventListeners() {
             dom.sessionSelect.addEventListener('change', async () => {
                 const lastSavedIndex = state.currentSessionIndex;
                 if (localStorage.getItem('inProgressWorkout')) {
-                    const confirmed = await customConfirm("Changer de séance annulera la séance en cours. Continuer ?");
+                    const confirmed = await customConfirm("Changer de séance annulera la séance en cours. Toutes les données non sauvegardées seront perdues. Continuer ?");
                     if (!confirmed) {
                         dom.sessionSelect.value = lastSavedIndex;
                         return;
                     }
-                    Object.values(state.timers).forEach(timer => clearInterval(timer.interval));
+                    Object.values(state.timers).forEach(timer => {
+                        if (timer && timer.interval) clearInterval(timer.interval);
+                    });
                     state.timers = {};
                     if (state.totalWorkoutTimeInterval) {
                         clearInterval(state.totalWorkoutTimeInterval);
@@ -3075,6 +3518,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 }
                 state.currentSessionIndex = +dom.sessionSelect.value;
                 createTable();
+                updateDeleteSessionButtonState(); // Update delete button state on session change
             });
             
             dom.addExerciseBtn.addEventListener('click', () => {
@@ -3087,7 +3531,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     state.sessions[state.currentSessionIndex].exercises.push({ name, rest: "1 min", series: [] });
                     createTable(); 
                     dom.customExerciseInput.value = '';
-                    showNotification(`Exercice "${name}" ajouté.`, "info");
+                    showNotification(`Exercice "${name}" ajouté avec succès.`, "info");
                     dom.autocompleteSuggestions.classList.remove('show');
                     dom.autocompleteSuggestions.addEventListener('transitionend', () => {
                         dom.autocompleteSuggestions.classList.add('hidden');
@@ -3098,7 +3542,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         newElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 } else {
-                    showNotification("Veuillez entrer un nom d'exercice.", "error");
+                    showNotification("Veuillez entrer un nom d'exercice à ajouter.", "error");
                 }
             });
 
@@ -3119,70 +3563,77 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             }, true);
 
 
-            dom.exerciseListContainer.addEventListener('input', e => { // Changed to 'input' for dynamic 1RM update
+            dom.exerciseListContainer.addEventListener('input', e => { 
                 if (e.target.classList.contains('reps') || e.target.classList.contains('weight')) {
                     if (!state.workoutStartTime) {
                         startTotalWorkoutTimer();
                     }
-                    updateAllTotals(); // Call updateAllTotals on every input change for dynamic 1RM
+                    updateAllTotals(); 
+                    // No auto-focus on input event anymore
+                }
+            });
 
-                    const element = e.target.closest('.exercise-row') || e.target.closest('.exercise-card');
-                    const exIndex = parseInt(element.dataset.exerciseIndex, 10);
-                    const serieIndex = parseInt(e.target.dataset.serie, 10);
-                    
-                    const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
-                    const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
+            // New keydown event listener for Enter key for auto-focus
+            dom.exerciseListContainer.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    const target = e.target;
+                    // Check if the target is a weight or reps input field
+                    if (target.classList.contains('weight') || target.classList.contains('reps')) {
+                        e.preventDefault(); // Prevent default Enter behavior (e.g., submitting a form)
 
-                    // Logic for auto-focusing to reps after weight entry
-                    if (e.target.classList.contains('weight')) {
-                        if (repsInput && repsInput.value.trim() === '') { // Only auto-focus if reps is empty
-                            repsInput.focus();
-                            return; // Stop further progression for this event to allow reps entry
+                        const exIndex = parseInt(target.dataset.ex, 10);
+                        const serieIndex = parseInt(target.dataset.serie, 10);
+
+                        const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
+                        const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
+
+                        // Inline validation and highlighting
+                        if (!isValidAndCompleteNumber(target.value)) {
+                            target.classList.add('is-invalid');
+                            return; // Stop processing if input is invalid
+                        } else {
+                            target.classList.remove('is-invalid');
                         }
-                    }
 
-                    if (repsInput && weightInput && repsInput.value.trim() !== '' && weightInput.value.trim() !== '') {
-                        
-                        const exercises = state.sessions[state.currentSessionIndex].exercises;
-                        const currentExercise = exercises[exIndex];
 
-                        // Logic for superset series progression on mobile
-                        if (state.isMobileView && currentExercise.supersetWith !== undefined && currentExercise.supersetWith !== null) {
-                            const nextExIndex = currentExercise.supersetWith;
-                            const nextExercise = exercises[nextExIndex];
-                            const nextWeightInput = document.querySelector(`[data-ex='${nextExIndex}'][data-serie='${serieIndex}'].weight`);
+                        if (target.classList.contains('weight')) {
+                            // If weight is entered and Enter is pressed, move to reps
+                            if (repsInput) {
+                                repsInput.focus();
+                            }
+                        } else if (target.classList.contains('reps')) {
+                            // If reps is entered and Enter is pressed, move to next series or exercise
+                            
+                            // Trigger superset timer if current series is complete
+                            const currentExercise = state.sessions[state.currentSessionIndex].exercises[exIndex];
+                            const element = target.closest('.exercise-row') || target.closest('.exercise-card');
+                            if (currentExercise.supersetGroup && isValidAndCompleteNumber(weightInput.value) && isValidAndCompleteNumber(repsInput.value)) {
+                                handleTimerActions('start', exIndex, element);
+                            }
+
+                            const nextWeightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex + 1}'].weight`);
                             if (nextWeightInput) {
-                                // If current series for next exercise is empty, pre-fill with weight from completed exercise
-                                if (nextWeightInput.value.trim() === '') {
-                                    nextWeightInput.value = weightInput.value;
+                                if (nextWeightInput.value.trim() === '') { // Only pre-fill if empty
+                                    nextWeightInput.value = weightInput.value; // Pre-fill with previous weight
                                 }
                                 nextWeightInput.focus();
-                                showNotification(`Superset: Passez à ${nextExercise.name} pour la série ${serieIndex + 1}.`, "info");
-                                return; // Prevent default focus/progression
+                            } else {
+                                // No more series in this exercise, try next exercise's first series
+                                const nextExerciseElement = document.querySelector(`[data-exercise-index="${exIndex + 1}"]`);
+                                if (nextExerciseElement) {
+                                    const firstWeightInputOfNextEx = nextExerciseElement.querySelector(`.weight[data-serie="0"]`);
+                                    if (firstWeightInputOfNextEx) {
+                                         if (firstWeightInputOfNextEx.value.trim() === '') { // Only pre-fill if empty
+                                            firstWeightInputOfNextEx.value = weightInput.value; // Pre-fill
+                                        }
+                                        firstWeightInputOfNextEx.focus();
+                                    } else {
+                                        target.blur(); // No next input found, just blur
+                                    }
+                                } else {
+                                    target.blur(); // No next exercise, just blur
+                                }
                             }
-                        }
-
-                        // Default progression to next weight input if not in superset or last superset exercise
-                        const nextWeightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex + 1}'].weight`);
-                        if (nextWeightInput && nextWeightInput.value.trim() === '') {
-                            nextWeightInput.value = weightInput.value; // Pre-fill next weight
-                            nextWeightInput.focus();
-                        } else if (nextWeightInput) { // If next series exists and has a value, just move focus
-                            nextWeightInput.focus();
-                        } else { // If no more series, blur
-                            e.target.blur();
-                        }
-
-
-                        if (element.classList.contains('next-superset-exercise')) {
-                            element.classList.remove('next-superset-exercise');
-                        }
-
-                        // Keeping this as is, for clarity, it applies only if it's the SECOND exercise in a superset
-                        // (which is the target of another superset link) and means its rest timer should start.
-                        const parentExerciseIndex = exercises.findIndex(ex => ex.supersetWith === exIndex);
-                        if (parentExerciseIndex !== -1) {
-                            handleTimerActions('start', exIndex, element);
                         }
                     }
                 }
@@ -3193,9 +3644,18 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.exerciseListContainer.addEventListener('click', handleTableActions); 
             document.getElementById('finishSessionBtn').addEventListener('click', finishAndSaveSession);
             document.getElementById('viewHistoryBtn').addEventListener('click', () => {
+                const triggeringElement = document.activeElement; // Save element that triggered the modal
                 displayHistory(); 
                 dom.historyModal.classList.remove('hidden'); 
                 dom.historyModal.classList.add('show');
+                // Accessibility: Ensure focus is trapped within the modal and moved to the first interactive element.
+                dom.closeHistoryModal.focus(); 
+                // Restore focus when modal closes
+                dom.historyModal.addEventListener('transitionend', () => {
+                    if (dom.historyModal.classList.contains('hidden') && triggeringElement && typeof triggeringElement.focus === 'function') {
+                        triggeringElement.focus();
+                    }
+                }, { once: true });
             });
             dom.historyModal.addEventListener('click', handleHistoryActions);
             dom.exportBtn.addEventListener('click', exportCSV); 
@@ -3205,7 +3665,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.importFileInput.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (!file) {
-                    showNotification("Aucun fichier sélectionné.", "info");
+                    showNotification("Aucun fichier sélectionné pour l'importation.", "info");
                     return;
                 }
 
@@ -3220,7 +3680,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         } else if (file.name.endsWith('.csv')) {
                             importedData = parseCsvToHistory(content);
                         } else {
-                            showNotification("Format de fichier non pris en charge. Veuillez utiliser .json ou .csv", "error");
+                            showNotification("Format de fichier non pris en charge. Veuillez utiliser un fichier .json ou .csv.", "error");
                             return;
                         }
 
@@ -3242,11 +3702,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
                         localStorage.setItem('workoutHistory', JSON.stringify(currentHistory));
                         displayHistory();
-                        showNotification(`${newEntriesCount} séances importées, ${updatedEntriesCount} mises à jour.`, "success");
+                        showNotification(`${newEntriesCount} séances importées et ${updatedEntriesCount} mises à jour avec succès.`, "success");
 
                     } catch (error) {
                         console.error("Erreur lors de l'importation du fichier:", error);
-                        showNotification("Erreur lors du traitement du fichier. Vérifiez le format.", "error");
+                        showNotification("Une erreur est survenue lors du traitement du fichier. Veuillez vérifier son format.", "error");
                     } finally {
                         event.target.value = ''; // Clear the input so same file can be selected again
                     }
@@ -3256,7 +3716,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
             document.getElementById('closeHistoryModal').addEventListener('click', () => {
                 dom.historyModal.classList.remove('show');
-                dom.historyModal.addEventListener('transitionend', () => dom.historyModal.classList.add('hidden'), { once : true });
+                const triggeringElement = document.activeElement; // Save element that triggered the modal
+                dom.historyModal.addEventListener('transitionend', () => {
+                    dom.historyModal.classList.add('hidden');
+                    if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                        triggeringElement.focus();
+                    }
+                }, { once : true });
             });
             dom.themeToggleBtn.addEventListener('click', () => {
                 const newTheme = dom.body.classList.contains('dark-mode') ? 'light' : 'dark';
@@ -3271,6 +3737,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 }
             });
             dom.createNewSessionTypeBtn.addEventListener('click', showNewSessionModal);
+            dom.deleteCurrentSessionBtn.addEventListener('click', deleteCurrentSession); // New listener for delete button
             dom.closeNewSessionModal.addEventListener('click', hideNewSessionModal);
             dom.cancelNewSessionBtn.addEventListener('click', hideNewSessionModal);
             dom.createNewSessionBtn.addEventListener('click', createNewSession);
@@ -3282,12 +3749,28 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (state.sessionToLoad) await appendToCurrentSessionLogic(state.sessionToLoad);
             });
             dom.plateCalculatorBtn.addEventListener('click', () => {
+                const triggeringElement = document.activeElement; // Save element that triggered the modal
                 dom.plateCalculatorModal.classList.remove('hidden');
                 dom.plateCalculatorModal.classList.add('show');
+                 // Accessibility: Set focus to the first interactive element in the calculator modal
+                const firstInput = dom.plateCalculatorModal.querySelector('input, button');
+                if (firstInput) firstInput.focus();
+                // Restore focus when modal closes
+                dom.plateCalculatorModal.addEventListener('transitionend', () => {
+                    if (dom.plateCalculatorModal.classList.contains('hidden') && triggeringElement && typeof triggeringElement.focus === 'function') {
+                        triggeringElement.focus();
+                    }
+                }, { once: true });
             });
             dom.closePlateCalculatorModal.addEventListener('click', () => {
                 dom.plateCalculatorModal.classList.remove('show');
-                dom.plateCalculatorModal.addEventListener('transitionend', () => dom.plateCalculatorModal.classList.add('hidden'), { once : true });
+                const triggeringElement = document.activeElement; // Save element that triggered the modal
+                dom.plateCalculatorModal.addEventListener('transitionend', () => {
+                    dom.plateCalculatorModal.classList.add('hidden');
+                    if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                        triggeringElement.focus();
+                    }
+                }, { once : true });
             });
             dom.targetWeightInput.addEventListener('input', calculatePlates);
             dom.barbellWeightInput.addEventListener('input', calculatePlates);
@@ -3295,16 +3778,26 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             // New Event Listeners for Goal Calculator
             dom.plateCalcTab.addEventListener('click', () => {
                 dom.plateCalcTab.classList.add('active');
+                dom.plateCalcTab.setAttribute('aria-selected', 'true');
                 dom.goalCalcTab.classList.remove('active');
+                dom.goalCalcTab.setAttribute('aria-selected', 'false');
                 dom.plateCalcContent.classList.remove('hidden');
                 dom.goalCalcContent.classList.add('hidden');
+                 // Accessibility: Set focus to the first interactive element in the active tab
+                const firstInput = dom.plateCalcContent.querySelector('input, button');
+                if (firstInput) firstInput.focus();
             });
 
             dom.goalCalcTab.addEventListener('click', () => {
                 dom.goalCalcTab.classList.add('active');
+                dom.goalCalcTab.setAttribute('aria-selected', 'true');
                 dom.plateCalcTab.classList.remove('active');
+                dom.plateCalcTab.setAttribute('aria-selected', 'false');
                 dom.goalCalcContent.classList.remove('hidden');
                 dom.plateCalcContent.classList.add('hidden');
+                // Accessibility: Set focus to the first interactive element in the active tab
+                const firstInput = dom.goalCalcContent.querySelector('input, button');
+                if (firstInput) firstInput.focus();
             });
 
             dom.oneRmInput.addEventListener('input', calculateTrainingGoals);
@@ -3312,9 +3805,23 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             // Quick Edit Modal Listeners
             dom.closeQuickEditModal.addEventListener('click', () => {
                 dom.quickEditModal.classList.remove('show');
-                dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
+                const triggeringElement = document.activeElement; // Save element that triggered the modal
+                dom.quickEditModal.addEventListener('transitionend', () => {
+                    dom.quickEditModal.classList.add('hidden');
+                    if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                        triggeringElement.focus();
+                    }
+                }, { once : true });
             });
             dom.applyQuickEditBtn.addEventListener('click', () => {
+                const weightValid = validateInputField(dom.quickEditWeight, dom.quickEditWeightError, true); // Allow empty for quick edit
+                const repsValid = validateInputField(dom.quickEditReps, dom.quickEditRepsError, true); // Allow empty for quick edit
+
+                if (!weightValid || !repsValid) {
+                    showNotification("Veuillez corriger les erreurs pour appliquer l'édition rapide.", "error");
+                    return;
+                }
+
                 if (state.quickEditIndex !== null) {
                     const weight = dom.quickEditWeight.value;
                     const reps = dom.quickEditReps.value;
@@ -3326,7 +3833,13 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
                     updateAllTotals();
                     dom.quickEditModal.classList.remove('show');
-                    dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
+                    const triggeringElement = document.activeElement; // Save element that triggered the modal
+                    dom.quickEditModal.addEventListener('transitionend', () => {
+                        dom.quickEditModal.classList.add('hidden');
+                        if (triggeringElement && typeof triggeringElement.focus === 'function') {
+                            triggeringElement.focus();
+                        }
+                    }, { once : true });
                     showNotification("Séries mises à jour rapidement !", "success");
                 }
             });
@@ -3356,6 +3869,11 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         dom.quickEditModal.classList.remove('show');
                         dom.quickEditModal.addEventListener('transitionend', () => dom.quickEditModal.classList.add('hidden'), { once : true });
                     }
+                    if (dom.pwaInstallPrompt.classList.contains('show')) { // Close PWA prompt on Escape
+                        dom.pwaInstallPrompt.classList.remove('show');
+                        dom.pwaInstallPrompt.addEventListener('transitionend', () => dom.pwaInstallPrompt.classList.add('hidden'), { once: true });
+                        localStorage.setItem('pwaPromptDismissed', 'true');
+                    }
                 }
             });
 
@@ -3383,10 +3901,12 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 displayHistory(); 
                 dom.historyModal.classList.remove('hidden'); 
                 dom.historyModal.classList.add('show');
+                dom.closeHistoryModal.focus(); // Focus close button for accessibility
             });
             dom.bottomPlateCalculatorBtn.addEventListener('click', () => {
                 dom.plateCalculatorModal.classList.remove('hidden');
                 dom.plateCalculatorModal.classList.add('show');
+                dom.closePlateCalculatorModal.focus(); // Focus close button for accessibility
             });
         }
         
@@ -3470,6 +3990,58 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
         init();
     });
+    </script>
+    <script>
+    // PWA: Service Worker File (service-worker.js)
+    // This content would typically be in a separate file, but is included here for demonstration.
+    // In a real PWA, you would save this as /service-worker.js
+    
+    self.addEventListener('install', (event) => {
+      event.waitUntil(
+        caches.open('lyftiv-cache-v1').then((cache) => {
+          return cache.addAll([
+            '/', // Cache the root of the app
+            '/index.html', // Your main HTML file
+            // Add other critical assets here (CSS, JS, images, fonts)
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css',
+            'https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css',
+            // Any other JS or image assets used
+          ]);
+        })
+      );
+    });
+
+    self.addEventListener('fetch', (event) => {
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          return response || fetch(event.request);
+        })
+      );
+    });
+    </script>
+    <script type="application/json" id="manifest-json">
+    {
+      "name": "Lyftiv",
+      "short_name": "Lyftiv",
+      "description": "Suivi de Séance Musculation",
+      "start_url": "./index.html",
+      "display": "standalone",
+      "background_color": "#eff6ff",
+      "theme_color": "#6a90ff",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/icon-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
     </script>
 </body>
 </html>
