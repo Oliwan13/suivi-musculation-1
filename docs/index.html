@@ -1973,7 +1973,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 localStorage.setItem(`timer-${idx}`, JSON.stringify({
                     endTime: Date.now() + duration * 1000,
                     name: exercise.name,
-                    startTime: Date.now() // Store start time for accurate resume
+                    startTime: Date.now(),
+                    duration: duration // Added duration for persistence
                 }));
                 
                 if (state.timers[idx] && state.timers[idx].interval) clearInterval(state.timers[idx].interval);
@@ -3406,7 +3407,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (triggeringElement && typeof triggeringElement.focus === 'function') {
                     triggeringElement.focus();
                 }
-            }, { once: true });
+            }, { once : true });
         }
 
         function parseExerciseList(rawList) {
@@ -3486,6 +3487,84 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             const regex = /^\d+(\.\d{1,2})?$/;
             return regex.test(value.trim()) && parseFloat(value) >= 0;
         }
+
+        /**
+         * Loads and resumes individual exercise timers from localStorage.
+         * This function is called on application initialization to maintain timer state
+         * across browser sessions or page reloads.
+         */
+        function loadPersistentIndividualTimers() {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('timer-')) {
+                    const idx = parseInt(key.replace('timer-', ''), 10);
+                    try {
+                        const storedTimer = JSON.parse(localStorage.getItem(key));
+                        // Ensure storedTimer is valid and has not expired
+                        if (storedTimer && storedTimer.endTime > Date.now()) {
+                            const remainingSeconds = (storedTimer.endTime - Date.now()) / 1000;
+                            if (remainingSeconds > 0) {
+                                const element = document.querySelector(`[data-exercise-index="${idx}"]`);
+                                if (element) {
+                                    const timerDisplay = element.querySelector('.timer-display');
+                                    const startBtn = element.querySelector('[data-timer-action="start"]');
+                                    const stopBtn = element.querySelector('[data-timer-action="stop"]');
+
+                                    // Clear any existing interval for this timer to prevent duplicates
+                                    if (state.timers[idx] && state.timers[idx].interval) {
+                                        clearInterval(state.timers[idx].interval);
+                                    }
+
+                                    // Re-establish the timer state
+                                    state.timers[idx] = {
+                                        secondsElapsed: storedTimer.duration - remainingSeconds, // Calculate elapsed time
+                                        duration: storedTimer.duration,
+                                        interval: setInterval(() => {
+                                            state.timers[idx].secondsElapsed++;
+                                            const currentRemaining = state.timers[idx].duration - state.timers[idx].secondsElapsed;
+                                            if (currentRemaining <= 0) {
+                                                timerDisplay.textContent = formatTimerDisplay(0); // Show 0:00 when finished
+                                                timerDisplay.classList.remove('timer-active');
+                                                clearInterval(state.timers[idx].interval);
+                                                localStorage.removeItem(`timer-${idx}`); // Clean up storage
+                                                playBeep(); 
+                                                if(Notification.permission === "granted") {
+                                                    new Notification('Lyftiv - Repos Terminé !', { body: `Le temps de repos pour ${storedTimer.name} est terminé.`});
+                                                }
+                                                // Reset buttons and display original duration after timer finishes
+                                                startBtn.classList.remove('hidden'); 
+                                                stopBtn.classList.add('hidden'); 
+                                                timerDisplay.textContent = formatTimerDisplay(storedTimer.duration); 
+                                            } else {
+                                                timerDisplay.textContent = formatTimerDisplay(currentRemaining); 
+                                            }
+                                        }, 1000)
+                                    };
+                                    // Update display immediately and set active class
+                                    timerDisplay.textContent = formatTimerDisplay(remainingSeconds);
+                                    timerDisplay.classList.add('timer-active');
+                                    // Adjust button visibility
+                                    startBtn.classList.add('hidden');
+                                    stopBtn.classList.remove('hidden');
+                                } else {
+                                    // If the exercise element is no longer in the DOM (e.g., session changed or exercise deleted), clean up localStorage
+                                    localStorage.removeItem(key);
+                                }
+                            } else {
+                                // Timer has effectively expired, clean up localStorage
+                                localStorage.removeItem(key);
+                            }
+                        } else {
+                            // Invalid or expired stored data, clean up localStorage
+                            localStorage.removeItem(key);
+                        }
+                    } catch (e) {
+                        console.error(`Error parsing stored timer data for key ${key}:`, e);
+                        localStorage.removeItem(key); // Remove corrupted data
+                    }
+                }
+            }
+        }
         
         function setupEventListeners() {
             dom.sessionSelect.addEventListener('change', async () => {
@@ -3496,10 +3575,14 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         dom.sessionSelect.value = lastSavedIndex;
                         return;
                     }
-                    Object.values(state.timers).forEach(timer => {
-                        if (timer && timer.interval) clearInterval(timer.interval);
-                    });
-                    state.timers = {};
+                    // Clear all individual timers
+                    for (const timerKey in state.timers) {
+                        if (state.timers[timerKey] && state.timers[timerKey].interval) {
+                            clearInterval(state.timers[timerKey].interval);
+                            localStorage.removeItem(`timer-${timerKey}`); // Clear individual timer from storage
+                        }
+                    }
+                    state.timers = {}; // Reset timers object
                     if (state.totalWorkoutTimeInterval) {
                         clearInterval(state.totalWorkoutTimeInterval);
                         state.totalWorkoutTimeInterval = null;
@@ -3970,6 +4053,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.sessionSelect.value = state.currentSessionIndex;
             createTable();
             setupEventListeners();
+            loadPersistentIndividualTimers(); // Load and resume individual timers on initialization
 
             // Listen for window resize to toggle between desktop table and mobile cards
             window.addEventListener('resize', () => {
