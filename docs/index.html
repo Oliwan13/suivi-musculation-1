@@ -1740,6 +1740,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             return formatted.length > 0 ? formatted.join(' + ') : 'Aucun';
         }
         
+        // [FIX #3] - Modified plate calculator logic
         function calculatePlates() {
             const targetValid = validateInputField(dom.targetWeightInput, dom.targetWeightError);
             const barbellValid = validateInputField(dom.barbellWeightInput, dom.barbellWeightError);
@@ -1766,10 +1767,22 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             let weightPerSideTarget = (targetWeight - barbellWeight) / 2;
             
             const platesDenominations = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25].sort((a, b) => b - a);
+
             const combinationResult1 = getPlateCombinationOptimal(weightPerSideTarget, platesDenominations);
-            const formattedPlates1 = formatPlatesWithPlus(combinationResult1.plates);
             const combinationResult2 = getPlateCombinationAlternative(weightPerSideTarget, platesDenominations);
-            const formattedPlates2 = formatPlatesWithPlus(combinationResult2.plates);
+            
+            // Calculate total plates for BOTH sides
+            const totalPlates1 = {};
+            for (const plate in combinationResult1.plates) {
+                totalPlates1[plate] = combinationResult1.plates[plate] * 2;
+            }
+            const formattedTotalPlates1 = formatPlatesWithPlus(totalPlates1);
+            
+            const totalPlates2 = {};
+            for (const plate in combinationResult2.plates) {
+                totalPlates2[plate] = combinationResult2.plates[plate] * 2;
+            }
+            const formattedTotalPlates2 = formatPlatesWithPlus(totalPlates2);
 
             const loadedWeightPerSide = combinationResult1.loadedWeight;
             const totalLoadedWeight = loadedWeightPerSide * 2 + barbellWeight;
@@ -1782,12 +1795,12 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             if (Math.abs(diff) < 0.01) {
                 resultHtml += `<p class="plate-result-message success">Poids cible atteint !</p>`;
             } else {
-                resultHtml += `<p class="plate-result-message danger">Différence par rapport à la cible: +${diff.toFixed(2)}kg (manquant)</p>`;
+                resultHtml += `<p class="plate-result-message danger">Différence par rapport à la cible: ${diff > 0 ? '+' : ''}${diff.toFixed(2)}kg</p>`;
             }
             resultHtml += `</div>`;
-            resultHtml += `<h4>1. Minimisant le nombre de plaques:</h4><p>${formattedPlates1}</p>`;
-            if(formattedPlates1 !== formattedPlates2 && formattedPlates2 !== 'Aucun') {
-                resultHtml += `<h4>2. Décomposition détaillée:</h4><p>${formattedPlates2}</p>`;
+            resultHtml += `<h4>1. Total des plaques (2 côtés) - Minimisant le nombre:</h4><p>${formattedTotalPlates1}</p>`;
+            if(formattedTotalPlates1 !== formattedTotalPlates2 && formattedTotalPlates2 !== 'Aucun') {
+                resultHtml += `<h4>2. Total des plaques (2 côtés) - Autre décomposition:</h4><p>${formattedTotalPlates2}</p>`;
             }
             
             dom.platesResult.innerHTML = resultHtml;
@@ -1958,6 +1971,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             }
         }
         
+        // [FIX #1] - Modified timer logic
         function handleTimerActions(timerAction, idx, element) { // element can be row or card
              const timerDisplay = element.querySelector('.timer-display');
              const startBtn = element.querySelector('[data-timer-action="start"]');
@@ -1993,10 +2007,9 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             if(Notification.permission === "granted") {
                                 new Notification('Lyftiv - Repos Terminé !', { body: `Le temps de repos pour ${exercise.name} est terminé.`});
                             }
-                            // Reset state for buttons and display original duration
+                            // Reset state for buttons
                             startBtn.classList.remove('hidden'); 
                             stopBtn.classList.add('hidden'); 
-                            timerDisplay.textContent = formatTimerDisplay(duration); // Reset to original duration
                             
                             // NEW SUPERSET LOGIC
                             const exercises = state.sessions[state.currentSessionIndex].exercises;
@@ -3656,7 +3669,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 }
             });
 
-            // New keydown event listener for Enter key for auto-focus
+            // [FIX #2] - Modified keydown event listener
             dom.exerciseListContainer.addEventListener('keydown', e => {
                 if (e.key === 'Enter') {
                     const target = e.target;
@@ -3667,54 +3680,55 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         const exIndex = parseInt(target.dataset.ex, 10);
                         const serieIndex = parseInt(target.dataset.serie, 10);
 
-                        const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
-                        const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
-
-                        // Inline validation and highlighting
+                        // Inline validation for the current input
                         if (!isValidAndCompleteNumber(target.value)) {
                             target.classList.add('is-invalid');
-                            return; // Stop processing if input is invalid
+                            return; // Stop if the current input is invalid
                         } else {
                             target.classList.remove('is-invalid');
                         }
 
-
                         if (target.classList.contains('weight')) {
-                            // If weight is entered and Enter is pressed, move to reps
+                            // If weight is entered and valid, move to reps of the same set
+                            const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
                             if (repsInput) {
                                 repsInput.focus();
                             }
                         } else if (target.classList.contains('reps')) {
-                            // If reps is entered and Enter is pressed, move to next series or exercise
+                            // This block runs when Enter is pressed on a valid reps input
+                            const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
                             
-                            // Trigger superset timer if current series is complete
-                            const currentExercise = state.sessions[state.currentSessionIndex].exercises[exIndex];
-                            const element = target.closest('.exercise-row') || target.closest('.exercise-card');
-                            if (currentExercise.supersetGroup && isValidAndCompleteNumber(weightInput.value) && isValidAndCompleteNumber(repsInput.value)) {
-                                handleTimerActions('start', exIndex, element);
-                            }
-
-                            const nextWeightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex + 1}'].weight`);
-                            if (nextWeightInput) {
-                                if (nextWeightInput.value.trim() === '') { // Only pre-fill if empty
-                                    nextWeightInput.value = weightInput.value; // Pre-fill with previous weight
+                            // Check if BOTH weight and reps for the CURRENT set are valid and complete
+                            if (weightInput && isValidAndCompleteNumber(weightInput.value) && isValidAndCompleteNumber(target.value)) {
+                                
+                                // Trigger superset timer if applicable
+                                const currentExercise = state.sessions[state.currentSessionIndex].exercises[exIndex];
+                                const element = target.closest('.exercise-row') || target.closest('.exercise-card');
+                                if (currentExercise.supersetGroup) {
+                                    handleTimerActions('start', exIndex, element);
                                 }
-                                nextWeightInput.focus();
-                            } else {
-                                // No more series in this exercise, try next exercise's first series
-                                const nextExerciseElement = document.querySelector(`[data-exercise-index="${exIndex + 1}"]`);
-                                if (nextExerciseElement) {
-                                    const firstWeightInputOfNextEx = nextExerciseElement.querySelector(`.weight[data-serie="0"]`);
-                                    if (firstWeightInputOfNextEx) {
-                                         if (firstWeightInputOfNextEx.value.trim() === '') { // Only pre-fill if empty
-                                            firstWeightInputOfNextEx.value = weightInput.value; // Pre-fill
-                                        }
-                                        firstWeightInputOfNextEx.focus();
-                                    } else {
-                                        target.blur(); // No next input found, just blur
+
+                                // Move to the NEXT series' weight input
+                                const nextWeightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex + 1}'].weight`);
+                                if (nextWeightInput) {
+                                    if (nextWeightInput.value.trim() === '') { // Only pre-fill if empty
+                                        nextWeightInput.value = weightInput.value; // Pre-fill with previous weight
                                     }
+                                    nextWeightInput.focus();
                                 } else {
-                                    target.blur(); // No next exercise, just blur
+                                    // No more series in this exercise, try next exercise's first weight input
+                                    const nextExerciseElement = document.querySelector(`[data-exercise-index="${exIndex + 1}"]`);
+                                    if (nextExerciseElement) {
+                                        const firstWeightInputOfNextEx = nextExerciseElement.querySelector(`.weight[data-serie="0"]`);
+                                        if (firstWeightInputOfNextEx) {
+                                            // Do not pre-fill weight from a different exercise
+                                            firstWeightInputOfNextEx.focus();
+                                        } else {
+                                            target.blur(); // No next input found, just blur
+                                        }
+                                    } else {
+                                        target.blur(); // No next exercise, just blur
+                                    }
                                 }
                             }
                         }
