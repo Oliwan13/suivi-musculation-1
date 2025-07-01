@@ -1286,11 +1286,10 @@
         <div class="controls">
           <label for="sessionSelect"><strong>Séance:</strong></label>
           <select id="sessionSelect" aria-label="Sélectionner une séance d'entraînement">
-            <option value="0">PUSH (Poitrine/Épaules/Triceps)</option>
-            <option value="1">PULL (Dos/Biceps)</option>
-            <option value="2">LEG (Jambes)</option>
-            <option value="3">Épaules/Bras</option>
-            <option value="4">Dos/Pec</option>
+            <option value="0">Haut du Corps (Force)</option>
+            <option value="1">Bas du Corps (Force)</option>
+            <option value="2">Haut du Corps (Hypertrophie)</option>
+            <option value="3">Bas du Corps (Hypertrophie)</option>
           </select>
           <button class="btn btn-outline" id="createNewSessionTypeBtn" aria-label="Créer une nouvelle séance">Nouvelle Séance</button>
           <!-- New Delete Current Session Button -->
@@ -1504,6 +1503,7 @@
             totalTimeEl: document.getElementById('totalTime'),
             progressFill: document.getElementById('progressFill'),
             historyModal: document.getElementById('historyModal'),
+            closeHistoryModal: document.getElementById('closeHistoryModal'), // FIX: Added missing DOM reference
             notificationContainer: document.getElementById('notification-container'),
             customExerciseInput: document.getElementById('customExercise'),
             addExerciseBtn: document.getElementById('addExerciseBtn'),
@@ -1590,21 +1590,18 @@
             deferredPwaPrompt: null // For PWA deferred prompt
         };
         
-        const defaultSessions = [
-            { name: "PUSH (Poitrine/Épaules/Triceps)", exercises: [
-                { name: "DC barre lourd", rest: "2 min" }, { name: "DC barre léger", rest: "2 min" }, { name: "Incliné haltères", rest: "1 min" }, { name: "Écarté vis à vis", rest: "1 min" }, { name: "Dips machine", rest: "1 min" }, { name: "Élévation latérale machine debout", rest: "1 min" }, { name: "Extension triceps poulie", rest: "1 min" }
+        const defaultSessions=[
+            {name:"Haut du Corps (Force)",exercises:[
+                { name:"Développé couché barre",rest:"2 min" },{ name:"Tractions lestées",rest:"2 min" },{ name:"Développé incliné haltères",rest:"90 sec" },{ name:"Rowing T-barre appuyé",rest:"90 sec" },{ name:"Machine élévations latérales debout",rest:"75 sec" },{ name:"Curl incliné haltères",rest:"75 sec" },{ name:"Extension triceps à la poulie haute",rest:"60 sec" }
             ]},
-            { name: "PULL (Dos/Biceps)", exercises: [
-                { name: "Traction", rest: "2 min" }, { name: "Pull poulie", rest: "1 min" }, { name: "Tirage uni poulie haute sur banc", rest: "1 min" }, { name: "Rowing T bar", rest: "1 min" }, { name: "Machine Row", rest: "1 min" }, { name: "Machine Row uni", rest: "1 min" }, { name: "Face pull", rest: "1 min" }, { name: "Oiseaux machine", rest: "1 min" }, { name: "Curl marteau simultané", rest: "1 min" }, { name: "Bayesian curl", rest: "1 min" }
+            {name:"Bas du Corps (Force)",exercises:[
+                { name:"Hack squat",rest:"180 sec" },{ name:"Soulevé de terre roumain (RDL)",rest:"120 sec" },{ name:"Hip thrust (barre)",rest:"120 sec" },{ name:"Mollets debout",rest:"60 sec" }
             ]},
-            { name: "LEG (Jambes)", exercises: [
-                { name: "Leg extension drop", rest: "1 min" }, { name: "Presse horizontal", rest: "2 min" }, { name: "Squat guidé léger", rest: "1 min" }, { name: "Fente marché", rest: "2 min" }, { name: "Leg Curl assis", rest: "1 min" }, { name: "SDT jambes tendues smith", rest: "1 min" }
+            {name:"Haut du Corps (Hypertrophie)",exercises:[
+                { name:"Dips lestés",rest:"90 sec" },{ name:"Tirage vertical prise large",rest:"90 sec" },{ name:"Élévations latérales à la poulie",rest:"60 sec" },{ name:"Écarté incliné aux poulies",rest:"75 sec" },{ name:"Face Pull",rest:"75 sec" },{ name:"Curl pupitre",rest:"75 sec" },{ name:"Extension triceps overhead",rest:"75 sec" },{ name:"Curl poignets paumes haut",rest:"60 sec" },{ name:"Curl poignets inversé paumes bas",rest:"60 sec" },{ name:"Farmer’s Walk",rest:"90 sec" }
             ]},
-            { name: "Épaules/Bras", exercises: [
-                { name: "Militaire haltères pyramide montante", rest: "3 min" }, { name: "Élévation latérale", rest: "1 min" }, { name: "Élévation latérale supination", rest: "1 min" }, { name: "Face pull", rest: "1 min" }, { name: "Extension triceps", rest: "1 min" }, { name: "Curl poulie basse", rest: "1 min" }, { name: "Magic triceps", rest: "1 min" }, { name: "Curl pupitre", rest: "1 min" }, { name: "Dips", rest: "1 min" }, { name: "Curl haltères incliné", rest: "1 min" }, { name: "Cross Cable Triceps", rest: "1 min" }, { name: "Curl concentré haltère", rest: "1 min" }
-            ]},
-            { name: "Dos/Pec", exercises: [
-                 { name: "Tirage horizontal", rest: "1 min" }, { name: "Rowing barre buste penché pronation", rest: "1 min" }, { name: "Tirage poulie basse avec corde", rest: "1 min" }, { name: "Incliné guidé", rest: "2 min" }, { name: "Écarté couché", rest: "1 min" }, { name: "Vis à vis sur banc incliné", rest: "1 min" }, { name: "Circuit abdos", rest: "1 min" }
+            {name:"Bas du Corps (Hypertrophie)",exercises:[
+                { name:"Leg press",rest:"90 sec" },{ name:"Hip thrust (barre)",rest:"90 sec" },{ name:"Leg curl assis",rest:"75 sec" },{ name:"Fentes bulgares",rest:"75 sec" },{ name:"Mollets assis",rest:"60 sec" },{ name:"Circuit abdos",rest:"90 sec" }
             ]}
         ];
         // List of default session names for checking if a session can be deleted
@@ -4143,3 +4140,4 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
     </script>
 </body>
 </html>
+
