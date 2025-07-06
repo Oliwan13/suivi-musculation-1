@@ -1,0 +1,21 @@
+{
+  "name": "Lyftiv",
+  "short_name": "Lyftiv",
+  "description": "Suivi de Séance Musculation",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#eff6ff",
+  "theme_color": "#6a90ff",
+  "icons": [
+    {
+      "src": "public/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "public/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
