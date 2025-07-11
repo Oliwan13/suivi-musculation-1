@@ -512,7 +512,8 @@
             border-radius: var(--border-radius-large);
             text-align: center; 
             background: var(--input-bg);
-            box-shadow: 0 5px 12px var(--shadow-medium);
+            /* Removed box-shadow for a simpler design */
+            box-shadow: none; /* Removed shadow */
             border-left: 5px solid var(--primary-color);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             position: relative;
@@ -520,6 +521,7 @@
         }
         .summary-card:hover {
             transform: translateY(-4px);
+            /* Kept hover shadow for subtle interaction feedback */
             box-shadow: 0 8px 18px var(--shadow-strong);
         }
         .summary-card h3 {
@@ -1587,61 +1589,61 @@
           {
             name: "Haut du Corps (Force)",
             exercises: [
-              { name: "Tractions scapulaires", rest: "60s", series: [] },
-              { name: "Développé couché barre", rest: "120s", series: [] },
-              { name: "Machine élévations latérales debout", rest: "", series: [] },
-              { name: "Tractions", rest: "90s", series: [] },
-              { name: "Développé incliné haltères", rest: "", series: [] },
-              { name: "Rowing T-barre appuyé", rest: "90s", series: [] },
-              { name: "Pec Deck", rest: "", series: [] },
-              { name: "Bayesian Cable Curl", rest: "75s", series: [] },
-              { name: "Extension triceps à la poulie haute", rest: "", series: [] }
+              { name: "Tractions scapulaires", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Développé couché barre", rest: "120s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Machine élévations latérales debout", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Tractions", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Développé incliné haltères", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Rowing T-barre appuyé", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Pec Deck", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Bayesian Cable Curl", rest: "75s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Extension triceps à la poulie haute", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] }
             ]
           },
           {
             name: "Bas du Corps (Force)",
             exercises: [
-              { name: "Soulevé de terre roumain (RDL)", rest: "120s", series: [] },
-              { name: "Hip thrust", rest: "120s", series: [] },
-              { name: "Hack squat", rest: "180s", series: [] },
-              { name: "Fentes bulgares", rest: "90s", series: [] },
-              { name: "Mollets debout", rest: "60s", series: [] }
+              { name: "Soulevé de terre roumain (RDL)", rest: "120s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Hip thrust", rest: "120s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Hack squat", rest: "180s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Fentes bulgares", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Mollets debout", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] }
             ]
           },
           {
             name: "Haut du Corps (Hypertrophie & Poigne)",
             exercises: [
-              { name: "Dips", rest: "90s", series: [] },
-              { name: "Tirage vertical prise large", rest: "", series: [] },
-              { name: "Écarté incliné aux poulies", rest: "75s", series: [] },
-              { name: "Face Pull", rest: "", series: [] },
-              { name: "Élévations latérales à la poulie", rest: "60s", series: [] },
-              { name: "Curl pupitre", rest: "75s", series: [] },
-              { name: "Extension triceps overhead", rest: "", series: [] },
-              { name: "Flexions poignets supination", rest: "60s", series: [] },
-              { name: "Extensions de poignets pronation", rest: "", series: [] },
-              { name: "Farmer’s Walk", rest: "90s", series: [] },
-              { name: "Planche", rest: "", series: [] }
+              { name: "Dips", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Tirage vertical prise large", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Écarté incliné aux poulies", rest: "75s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Face Pull", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Élévations latérales à la poulie", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Curl pupitre", rest: "75s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Extension triceps overhead", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Flexions poignets supination", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Extensions de poignets pronation", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Farmer’s Walk", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Planche", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] }
             ]
           },
           {
             name: "Bas du Corps (Hypertrophie & Focus Ischios/Fessiers)",
             exercises: [
-              { name: "Pendulum Squat", rest: "90s", series: [] },
-              { name: "Hip thrust", rest: "90s", series: [] },
-              { name: "Leg curl assis", rest: "75s", series: [] },
-              { name: "Mollets assis", rest: "60s", series: [] },
-              { name: "Glute Ham Raise", rest: "", series: [] },
-              { name: "Circuit abdos (relevé de jambe, crunches, planche)", rest: "90s", series: [] }
+              { name: "Pendulum Squat", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Hip thrust", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Leg curl assis", rest: "75s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Mollets assis", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Glute Ham Raise", rest: "", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Circuit abdos (relevé de jambe, crunches, planche)", rest: "90s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] }
             ]
           },
           {
             name: "Trapèzes & Mobilité ",
             exercises: [
-              { name: "Barbell Shrugs", rest: "60s", series: [] },
-              { name: "Face Pull", rest: "60s", series: [] },
-              { name: "Cable Y-Raise", rest: "60s", series: [] },
-              { name: "Dead Hang", rest: "60s", series: [] }
+              { name: "Barbell Shrugs", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Face Pull", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Cable Y-Raise", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] },
+              { name: "Dead Hang", rest: "60s", series: [{weight: '', reps: ''}, {weight: '', reps: ''}, {weight: '', reps: ''}] }
             ]
           },
           {
@@ -2007,18 +2009,24 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             } else if (button.classList.contains('serie-input-delete')) { // New series delete action
                 const exIndex = +button.dataset.ex;
                 const serieIndex = +button.dataset.serie;
-                const weightInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].weight`);
-                const repsInput = document.querySelector(`[data-ex='${exIndex}'][data-serie='${serieIndex}'].reps`);
-                if (weightInput) {
-                    weightInput.value = '';
-                    weightInput.classList.remove('is-invalid'); // Clear validation
+                const exercise = state.sessions[state.currentSessionIndex].exercises[exIndex];
+
+                if (exercise.series.length > 1) { // Ensure at least one series remains
+                    exercise.series.splice(serieIndex, 1);
+                    createTable(); // Re-render to reflect the change
+                    updateAllTotals();
+                    showNotification(`Série ${serieIndex + 1} de l'exercice effacée.`, "info", 2000);
+                } else {
+                    showNotification("Un exercice doit avoir au moins une série.", "error", 3000);
                 }
-                if (repsInput) {
-                    repsInput.value = '';
-                    repsInput.classList.remove('is-invalid'); // Clear validation
-                }
-                updateAllTotals(); // Recalculate totals after clearing
-                showNotification(`Série ${serieIndex + 1} de l'exercice effacée.`, "info", 2000);
+            } else if (action === 'add-series') { // New action for adding a series
+                const exercise = state.sessions[state.currentSessionIndex].exercises[idx];
+                exercise.series.push({ weight: '', reps: '' }); // Add a new empty series
+                createTable(); // Re-render to show the new series
+                // Optionally scroll to the new series input
+                const newSeriesInput = document.querySelector(`[data-ex='${idx}'][data-serie='${exercise.series.length - 1}'].weight`);
+                newSeriesInput?.focus();
+                showNotification(`Nouvelle série ajoutée à l'exercice "${exercise.name}".`, "info", 2000);
             }
         }
         
@@ -2124,22 +2132,35 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             if (!currentSession || !currentSession.exercises) return;
 
             currentSession.exercises.forEach((ex, idx) => {
-                if (!ex.series) {
-                    ex.series = [];
+                // Ensure ex.series is an array before attempting to map over it
+                if (!Array.isArray(ex.series)) {
+                    ex.series = []; // Initialize as empty array if not already
                 }
-                for (let i = 0; i < 5; i++) {
-                    // Select inputs based on current view (table or card)
-                    const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
-                    const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
-                    
-                    if (weightInput && repsInput) {
-                        if (!ex.series[i]) {
-                            ex.series[i] = {};
-                        }
-                        ex.series[i].weight = weightInput.value;
-                        ex.series[i].reps = repsInput.value;
+                
+                // Collect current values from DOM inputs for this exercise
+                const currentInputs = Array.from(document.querySelectorAll(`[data-ex='${idx}'][data-serie]`));
+                const newSeriesData = [];
+                
+                // Group inputs by series index
+                const seriesMap = new Map();
+                currentInputs.forEach(input => {
+                    const serieIndex = parseInt(input.dataset.serie, 10);
+                    if (!seriesMap.has(serieIndex)) {
+                        seriesMap.set(serieIndex, {});
                     }
-                }
+                    if (input.classList.contains('weight')) {
+                        seriesMap.get(serieIndex).weight = input.value;
+                    } else if (input.classList.contains('reps')) {
+                        seriesMap.get(serieIndex).reps = input.value;
+                    }
+                });
+
+                // Convert map to array, ensuring order
+                Array.from(seriesMap.keys()).sort((a, b) => a - b).forEach(serieIndex => {
+                    newSeriesData.push(seriesMap.get(serieIndex));
+                });
+
+                ex.series = newSeriesData;
             });
         }
         
@@ -2187,13 +2208,19 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
 
                     let seriesContentHtml = "";
-                    for(let i = 0; i < 5; i++) {
-                        const currentSeries = ex.series?.[i] || {};
+                    // Render existing series
+                    ex.series.forEach((currentSeries, i) => {
                         seriesContentHtml += `<td role="cell"><div class="serie-input">
                             <input type="text" data-ex="${idx}" data-serie="${i}" class="weight" placeholder="kg" aria-label="Poids pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.weight || ''}" tabindex="${(idx * 10) + (i * 2) + 1}">
                             <input type="text" data-ex="${idx}" data-serie="${i}" class="reps" placeholder="Reps" aria-label="Reps pour l'exercice ${ex.name} série ${i+1}" value="${currentSeries.reps || ''}" tabindex="${(idx * 10) + (i * 2) + 2}">
                             <button class="serie-input-delete" data-ex="${idx}" data-serie="${i}" aria-label="Effacer cette série">&times;</button>
                         </div></td>`;
+                    });
+
+                    // Fill remaining 5 columns with empty cells or "add series" button
+                    const remainingCols = 5 - ex.series.length;
+                    for (let i = 0; i < remainingCols; i++) {
+                        seriesContentHtml += `<td role="cell"></td>`; // Empty cells
                     }
                     
                     tr.innerHTML = `
@@ -2205,6 +2232,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                             <button class="link-btn tooltip" data-action="link-superset" aria-label="Lier ${ex.name} pour superset">
                                 <i class="fas fa-link" aria-hidden="true"></i>
                                 <span class="tooltiptext">Lier Superset</span>
+                            </button>
+                            <button class="btn-ghost" data-action="add-series" data-exercise-index="${idx}" aria-label="Ajouter une série à ${ex.name}">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                <span class="tooltiptext">Ajouter série</span>
                             </button>
                         </td>
                         <td class="exercise-col" data-label="Exercice" title="${ex.name}" role="cell">
@@ -2251,8 +2282,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
 
                     let seriesHtml = '';
-                    for (let i = 0; i < 5; i++) {
-                        const currentSeries = ex.series?.[i] || {};
+                    ex.series.forEach((currentSeries, i) => {
                         seriesHtml += `
                             <div class="series-row">
                                 <span>Série ${i + 1}:</span>
@@ -2263,7 +2293,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                 </div>
                             </div>
                         `;
-                    }
+                    });
 
                     card.innerHTML = `
                         <h4>
@@ -2272,6 +2302,9 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         </h4>
                         <div class="series-group">
                             ${seriesHtml}
+                            <button class="btn btn-outline" data-action="add-series" data-exercise-index="${idx}" style="width: 100%; margin-top: var(--spacing-sm);">
+                                <i class="fas fa-plus" aria-hidden="true"></i> Ajouter une série
+                            </button>
                         </div>
                         <div class="card-stats">
                             <div class="card-stat-item">
@@ -2364,14 +2397,15 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             let totalTonnage = 0;
             let completedSeriesOverall = 0;
             const exercises = state.sessions[state.currentSessionIndex]?.exercises || [];
-            let totalPossibleSeries = exercises.length * 5;
-            
+            let totalPossibleSeries = 0; // Now dynamic
+
             exercises.forEach((ex, idx) => {
                 let exerciseTonnage = 0;
                 let oneRMs = []; // Array to store 1RM values for each valid series
-                let validSeriesCount = 0; // Count of valid series for weighting
+                
+                totalPossibleSeries += ex.series.length; // Add current series count to total possible
 
-                for (let i = 0; i < 5; i++) {
+                ex.series.forEach((s, i) => { // Iterate over actual series in state
                     const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
                     const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
                     
@@ -2398,6 +2432,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
 
                     // Apply inline validation for each series input
                     if (weightInput) {
+                        // Use the updated isValidAndCompleteNumber to check for validity of potentially multiple values
                         if (!isValidAndCompleteNumber(weightInput.value) && weightInput.value.trim() !== '') {
                              weightInput.classList.add('is-invalid');
                         } else {
@@ -2405,6 +2440,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         }
                     }
                     if (repsInput) {
+                         // Use the updated isValidAndCompleteNumber to check for validity of potentially multiple values
                          if (!isValidAndCompleteNumber(repsInput.value) && repsInput.value.trim() !== '') {
                             repsInput.classList.add('is-invalid');
                         } else {
@@ -2423,7 +2459,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     }
                     
                     exerciseTonnage += currentSeriesTonnage;
-                }
+                });
 
                 // Calculate weighted average 1RM for the exercise
                 let weightedAverage1RM = 0;
@@ -2501,14 +2537,18 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             const currentSession = state.sessions[state.currentSessionIndex];
             if (!currentSession) return;
             currentSession.exercises.forEach((ex, idx) => {
-                ex.series = Array.from({length: 5}, (_, i) => {
-                    const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
-                    const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
-                    return {
-                        weight: weightInput?.value || '',
-                        reps: repsInput?.value || ''
-                    };
-                });
+                ex.series = Array.from(document.querySelectorAll(`[data-ex='${idx}'][data-serie]`)).reduce((acc, input) => {
+                    const serieIndex = parseInt(input.dataset.serie, 10);
+                    if (!acc[serieIndex]) {
+                        acc[serieIndex] = {};
+                    }
+                    if (input.classList.contains('weight')) {
+                        acc[serieIndex].weight = input.value;
+                    } else if (input.classList.contains('reps')) {
+                        acc[serieIndex].reps = input.value;
+                    }
+                    return acc;
+                }, []).filter(s => s.weight !== undefined || s.reps !== undefined); // Filter out empty objects if any
             });
             // Save calculator input values
             const calculatorState = {
@@ -2537,14 +2577,16 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             if (!data) return;
             const currentExercises = state.sessions[state.currentSessionIndex]?.exercises || [];
             currentExercises.forEach((ex, idx) => {
-                const repsInputs = document.querySelectorAll(`[data-ex='${idx}'].reps`);
-                const weightInputs = document.querySelectorAll(`[data-ex='${idx}'].weight`);
-                if (ex.series) {
-                    ex.series.forEach((s, i) => {
-                        if (repsInputs[i]) repsInputs[i].value = s.reps || '';
-                        if (weightInputs[i]) weightInputs[i].value = s.weight || '';
-                    });
+                // Ensure ex.series exists and is an array before attempting to populate inputs
+                if (!Array.isArray(ex.series)) {
+                    ex.series = [];
                 }
+                ex.series.forEach((s, i) => {
+                    const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
+                    const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
+                    if (repsInput) repsInput.value = s.reps || '';
+                    if (weightInput) weightInput.value = s.weight || '';
+                });
             });
             dom.previousWeekInput.value = data.previousWeek || "";
             dom.sessionNotesInput.value = data.sessionNotes || "";
@@ -2640,11 +2682,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 isAutoSave: true,
                 exercises: (state.sessions[state.currentSessionIndex]?.exercises || []).flatMap((ex, idx) => {
                     const exerciseSeries = [];
-                    for (let i = 0; i < 5; i++) {
-                        const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
-                        const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
-                        const repsValues = repsInput?.value.split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
-                        const weightValues = weightInput?.value.split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
+                    // Iterate over the actual series in the exercise object, not a fixed number
+                    ex.series.forEach(s => {
+                        const repsValues = String(s.reps).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
+                        const weightValues = String(s.weight).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
                         
                         const minLength = Math.min(repsValues.length, weightValues.length);
                         if (minLength > 0) { // Only add if there's at least one valid pair
@@ -2659,7 +2700,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                 weightValues.forEach(w => exerciseSeries.push({ reps: 0, weight: w })); // Assume 0 reps if not provided
                             }
                         }
-                    }
+                    });
                     if (exerciseSeries.length > 0) {
                         return [{
                             name: ex.name,
@@ -2694,11 +2735,10 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 notes: dom.sessionNotesInput.value,
                 exercises: (state.sessions[state.currentSessionIndex]?.exercises || []).flatMap((ex, idx) => {
                     const exerciseSeries = [];
-                    for (let i = 0; i < 5; i++) {
-                        const repsInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].reps`);
-                        const weightInput = document.querySelector(`[data-ex='${idx}'][data-serie='${i}'].weight`);
-                        const repsValues = repsInput?.value.split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
-                        const weightValues = weightInput?.value.split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
+                    // Iterate over the actual series in the exercise object, not a fixed number
+                    ex.series.forEach(s => {
+                        const repsValues = String(s.reps).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
+                        const weightValues = String(s.weight).split('+').map(val => parseFloat(val.trim().replace(',', '.'))).filter(val => !isNaN(val) && val >= 0) || [];
                         
                         const minLength = Math.min(repsValues.length, weightValues.length);
                         if (minLength > 0) {
@@ -2712,7 +2752,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                                 weightValues.forEach(w => exerciseSeries.push({ reps: 0, weight: w }));
                             }
                         }
-                    }
+                    });
                     if (exerciseSeries.length > 0) {
                         return [{
                             name: ex.name,
@@ -3217,6 +3257,14 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     pauseTotalWorkoutTimer();
                     saveCurrentState(); // Ensure state is saved immediately
                 }
+                // Pause all individual timers as well
+                for (const idx in state.timers) {
+                    if (state.timers[idx] && state.timers[idx].interval) {
+                        clearInterval(state.timers[idx].interval);
+                        // Storing endTime in localStorage is sufficient for individual timers
+                        // as loadPersistentIndividualTimers will recalculate remaining time.
+                    }
+                }
             } else {
                 // User is returning to the page
                 const inProgress = JSON.parse(localStorage.getItem('inProgressWorkout'));
@@ -3237,6 +3285,8 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                         dom.timerPlayPauseText.textContent = 'Play';
                     }
                 }
+                // Crucial: Re-load/resume individual timers when returning to the page
+                loadPersistentIndividualTimers();
             }
         }
 
@@ -3299,7 +3349,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
             dom.newSessionNameInput.classList.remove('is-invalid');
             dom.newSessionNameError.textContent = '';
 
-            const newSession = { name: newName, exercises: [] };
+            const newSession = { name: newName, exercises: [{weight: '', reps: ''}] }; // Initialize with one empty series
             state.sessions.push(newSession);
             updateSessionSelectOptions(); 
             state.currentSessionIndex = state.sessions.length - 1; 
@@ -3384,7 +3434,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 const newTemplateExercises = historicalSession.exercises.map(ex => ({
                     name: ex.name,
                     rest: ex.rest || "1 min",
-                    series: ex.series || []
+                    series: ex.series.map(s => ({weight: s.weight, reps: s.reps})) || [] // Deep copy series
                 }));
                 const newTemplate = { name: historicalSession.sessionName, exercises: newTemplateExercises };
                 state.sessions.push(newTemplate);
@@ -3395,7 +3445,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 state.sessions[sessionIndexToLoad].exercises = historicalSession.exercises.map(ex => ({
                     name: ex.name,
                     rest: ex.rest || "1 min",
-                    series: ex.series || []
+                    series: ex.series.map(s => ({weight: s.weight, reps: s.reps})) || [] // Deep copy series
                 }));
             }
             state.currentSessionIndex = sessionIndexToLoad;
@@ -3430,10 +3480,14 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 const existingExIndex = currentSession.exercises.findIndex(ex => ex.name === historicalEx.name);
                 if (existingExIndex !== -1) {
                     const currentEx = currentSession.exercises[existingExIndex];
-                    currentEx.series = JSON.parse(JSON.stringify(historicalEx.series));
+                    currentEx.series = historicalEx.series.map(s => ({weight: s.weight, reps: s.reps})); // Deep copy series
                     exercisesUpdated++;
                 } else {
-                    currentSession.exercises.push(JSON.parse(JSON.stringify(historicalEx)));
+                    currentSession.exercises.push({
+                        name: historicalEx.name,
+                        rest: historicalEx.rest || "1 min",
+                        series: historicalEx.series.map(s => ({weight: s.weight, reps: s.reps})) // Deep copy series
+                    });
                     exercisesAdded++;
                 }
             });
@@ -3545,11 +3599,19 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         }
 
         // Helper to check if an input value is a valid, complete number (not a partial entry like "1." or empty)
+        // Updated to handle multiple values separated by '+'
         function isValidAndCompleteNumber(value) {
             if (value === null || value.trim() === '') return false;
-            // Use a regex to allow integers and decimals with at most two decimal places.
-            const regex = /^\d+(\.\d{1,2})?$/;
-            return regex.test(value.trim()) && parseFloat(value) >= 0;
+            const segments = value.trim().split('+');
+            const regex = /^\d+(\.\d{1,2})?$/; // Regex for a single valid number
+
+            // Check if all segments are valid numbers and not empty
+            for (const segment of segments) {
+                if (segment.trim() === '' || !regex.test(segment.trim()) || parseFloat(segment.trim()) < 0) {
+                    return false; // If any segment is invalid or empty, the whole value is invalid
+                }
+            }
+            return true; // All segments are valid
         }
 
         /**
@@ -3675,7 +3737,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     if (!state.sessions[state.currentSessionIndex].exercises) {
                         state.sessions[state.currentSessionIndex].exercises = [];
                     }
-                    state.sessions[state.currentSessionIndex].exercises.push({ name, rest: "1 min", series: [] });
+                    state.sessions[state.currentSessionIndex].exercises.push({ name, rest: "1 min", series: [{weight: '', reps: ''}] }); // Initialize with 1 series
                     createTable(); 
                     dom.customExerciseInput.value = '';
                     showNotification(`Exercice "${name}" ajouté avec succès.`, "info");
@@ -3908,7 +3970,7 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                     if (dom.plateCalculatorModal.classList.contains('hidden') && triggeringElement && typeof triggeringElement.focus === 'function') {
                         triggeringElement.focus();
                     }
-                }, { once: true });
+                }, { once : true });
             });
             dom.closePlateCalculatorModal.addEventListener('click', () => {
                 dom.plateCalculatorModal.classList.remove('show');
@@ -3973,13 +4035,15 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
                 if (state.quickEditIndex !== null) {
                     const weight = dom.quickEditWeight.value;
                     const reps = dom.quickEditReps.value;
-                    for (let i = 0; i < 5; i++) {
-                        const weightInput = document.querySelector(`[data-ex='${state.quickEditIndex}'][data-serie='${i}'].weight`);
-                        const repsInput = document.querySelector(`[data-ex='${state.quickEditIndex}'][data-serie='${i}'].reps`);
-                        if(weightInput) weightInput.value = weight;
-                        if(repsInput) repsInput.value = reps;
-                    }
-                    updateAllTotals();
+                    // Update series in state directly
+                    const exerciseToUpdate = state.sessions[state.currentSessionIndex].exercises[state.quickEditIndex];
+                    exerciseToUpdate.series.forEach((s, i) => {
+                        exerciseToUpdate.series[i].weight = weight;
+                        exerciseToUpdate.series[i].reps = reps;
+                    });
+                    
+                    createTable(); // Re-render to update inputs
+                    updateAllTotals(); // Recalculate totals
                     dom.quickEditModal.classList.remove('show');
                     const triggeringElement = document.activeElement; // Save element that triggered the modal
                     dom.quickEditModal.addEventListener('transitionend', () => {
@@ -4138,35 +4202,6 @@ ABS rolls,Abdos couché,Abducteurs,Adducteurs,Adduction poulie jambe pliée,Arch
         }
 
         init();
-    });
-    </script>
-    <script>
-    // PWA: Service Worker File (service-worker.js)
-    // This content would typically be in a separate file, but is included here for demonstration.
-    // In a real PWA, you would save this as /service-worker.js
-    
-    self.addEventListener('install', (event) => {
-      event.waitUntil(
-        caches.open('lyftiv-cache-v1').then((cache) => {
-          return cache.addAll([
-            '/', // Cache the root of the app
-            '/index.html', // Your main HTML file
-            // Add other critical assets here (CSS, JS, images, fonts)
-            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css',
-            'https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css',
-            // Any other JS or image assets used
-          ]);
-        })
-      );
-    });
-
-    self.addEventListener('fetch', (event) => {
-      event.respondWith(
-        caches.match(event.request).then((response) => {
-          return response || fetch(event.request);
-        })
-      );
     });
     </script>
     <script type="application/json" id="manifest-json">
